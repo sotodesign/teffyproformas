@@ -1,0 +1,17 @@
+{
+  "name": "Generador de Proformas",
+  "short_name": "Proformas",
+  "description": "Crea proformas para ventas por catálogo y envíalas por WhatsApp o PDF.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f4f8",
+  "theme_color": "#b8125f",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
