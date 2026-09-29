@@ -297,6 +297,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .q-wave{display:block;width:calc(100% + 36px);height:42px;margin:8px -18px 0}
 .total-chip strong{white-space:nowrap;font-size:22px}
 .arow .btn{padding-inline:14px}
+.top-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.prof{display:flex;align-items:center;gap:8px;border:0;border-radius:999px;background:rgba(255,255,255,.2);color:#fff;padding:4px 14px 4px 4px;font-weight:600;cursor:pointer}
+.prof:hover{background:rgba(255,255,255,.3)}
+.pav{width:30px;height:30px;border-radius:50%;background:#fff;color:var(--accent);display:grid;place-items:center;font-family:var(--font-display);font-weight:800}
 </style>
 </head>
 <body>
@@ -310,7 +314,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
         <p class="tag">Para ventas por catálogo: Ésika, Cyzone, L'Bel y más</p>
       </div>
     </div>
-    <div class="status" id="status" data-k="idle" role="status"><span class="dot"></span><span id="statusText">Cargando…</span></div>
+    <div class="top-r"><div class="status" id="status" data-k="idle" role="status"><span class="dot"></span><span id="statusText">Cargando…</span></div><button class="prof" data-tab="negocio" aria-label="Mi perfil"><span class="pav" id="topAv">S</span><span id="topName">Mi perfil</span></button></div>
   </header>
 
   <div class="banner" id="sampleBanner" hidden>
@@ -460,7 +464,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
   <!-- MI NEGOCIO -->
   <section class="tabpane" id="tab-negocio" hidden>
     <section class="panel">
-      <h2>Datos que salen en tus proformas</h2>
+      <h2>Mi perfil: datos que salen en tus proformas</h2>
       <div class="grid">
         <label class="field"><span>Nombre del negocio</span><input type="text" data-bind="seller.business" placeholder="Ej. Belleza con Ana"></label>
         <label class="field"><span>Tu nombre</span><input type="text" data-bind="seller.name"></label>
@@ -921,7 +925,7 @@ function makePdf(p){
   const X=W-M-200;
   rows.forEach(r=>{
     const kind=r[2];
-    if(kind===2){doc.setDrawColor.apply(doc,PINK);doc.setLineWidth(1.3);doc.roundedRect(X-8,y-17,216,28,6,6,'S');doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor.apply(doc,ACC);}
+    if(kind===2){y+=12;doc.setDrawColor.apply(doc,PINK);doc.setLineWidth(1.3);doc.roundedRect(X-8,y-17,216,28,6,6,'S');doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor.apply(doc,ACC);}
     else if(kind===1){doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor.apply(doc,ACC);}
     else if(kind===3){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor.apply(doc,MUTED);}
     else{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor.apply(doc,INK);}
@@ -1149,7 +1153,7 @@ $('#goSplash').onclick=()=>{sp.hidden=true;try{localStorage.setItem('pf-welcome'
 const $=s=>document.querySelector(s);
 function paint(){
   const e=$('#b-seller-name'),n=e&&e.value.trim()?e.value.trim().split(/\s+/)[0]:'';
-  $('#hiName').textContent='¡Hola'+(n?', '+n:'')+'! 👋';$('#hiAv').textContent=(n||'S')[0].toUpperCase();
+  $('#hiName').textContent='¡Hola'+(n?', '+n:'')+'! 👋';$('#hiAv').textContent=(n||'S')[0].toUpperCase();$('#topAv').textContent=(n||'S')[0].toUpperCase();$('#topName').textContent=n||'Mi perfil';
   let hs=[];try{hs=JSON.parse(localStorage.getItem('pf-history')||'[]');}catch(x){}
   const d=new Date(),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
   const m=hs.filter(x=>String(x.date).startsWith(k));
