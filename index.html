@@ -502,6 +502,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
 (function(){
 'use strict';
@@ -953,12 +954,45 @@ function makePdf(p){
   doc.lines([[W*0.25,-14,W*0.25,14,W*0.5,0],[W*0.25,-14,W*0.25,14,W*0.5,0],[0,H-y0],[-W,0]],0,y0,[1,1],'F',true);
   return doc.output('blob');
 }
-function pdfFile(){
+async function makePdfImage(p){
+  const H2C=window.html2canvas;if(!H2C)throw new Error('sin html2canvas');
+  updateTotals();
+  const PW=640,PH=Math.round(PW*842/595);
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-10000px;top:0;width:'+PW+'px;';
+  const el=$('#paper').cloneNode(true);
+  el.removeAttribute('id');
+  el.style.cssText='width:'+PW+'px;min-height:'+PH+'px;display:flex;flex-direction:column;border:0;border-radius:0;box-shadow:none;';
+  const wave=el.querySelector('.q-wave');if(wave)wave.style.marginTop='auto';
+  wrap.appendChild(el);document.body.appendChild(wrap);
+  try{
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const cv=await H2C(el,{scale:2,backgroundColor:'#fff7fb',useCORS:true,logging:false});
+    const J=window.jspdf.jsPDF,doc=new J({unit:'pt',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+    const imgH=W*cv.height/cv.width,data=cv.toDataURL('image/jpeg',0.93);
+    const pages=Math.max(1,Math.ceil(imgH/H-0.02));
+    for(let i=0;i<pages;i++){
+      if(i>0)doc.addPage();
+      doc.setFillColor(255,247,251);doc.rect(0,0,W,H,'F');
+      doc.addImage(data,'JPEG',0,-i*H,W,imgH);
+    }
+    return doc.output('blob');
+  }finally{wrap.remove();}
+}
+async function pdfFile(){
   const p=state.draft;
   if(!p.items.length){toast('Agrega al menos un producto.');return null;}
-  if(!(window.jspdf&&window.jspdf.jsPDF)||typeof window.jspdf.jsPDF.API.autoTable!=='function'){toast('El PDF necesita internet la primera vez. Conéctate e intenta de nuevo.');return null;}
+  if(!(window.jspdf&&window.jspdf.jsPDF)){toast('El PDF necesita internet la primera vez. Conéctate e intenta de nuevo.');return null;}
   const name='Proforma-'+numLabel(p.number||state.counter)+(p.client.name?'-'+slug(p.client.name):'')+'.pdf';
-  return new File([makePdf(p)],name,{type:'application/pdf'});
+  toast('Generando PDF…');
+  let blob;
+  try{blob=await makePdfImage(p);}
+  catch(e){
+    if(typeof window.jspdf.jsPDF.API.autoTable!=='function'){toast('El PDF necesita internet la primera vez. Conéctate e intenta de nuevo.');return null;}
+    blob=makePdf(p);
+  }
+  return new File([blob],name,{type:'application/pdf'});
 }
 function saveBlob(blob,name){
   const url=URL.createObjectURL(blob);
@@ -966,12 +1000,12 @@ function saveBlob(blob,name){
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
-function downloadPdf(){
-  try{const f=pdfFile();if(!f)return;saveBlob(f,f.name);toast('PDF descargado.');}
+async function downloadPdf(){
+  try{const f=await pdfFile();if(!f)return;saveBlob(f,f.name);toast('PDF descargado.');}
   catch(e){toast('No se pudo generar el PDF.');}
 }
 async function sharePdf(){
-  try{const f=pdfFile();if(!f)return;await navigator.share({files:[f],title:f.name});}
+  try{const f=await pdfFile();if(!f)return;await navigator.share({files:[f],title:f.name});}
   catch(e){if(e&&e.name==='AbortError')return;toast('No se pudo compartir. Prueba con Descargar PDF.');}
 }
 function exportBackup(){
