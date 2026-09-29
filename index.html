@@ -400,8 +400,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 
     <div class="done" id="done"><div class="ok">&#10003;</div><h2>¡Listo!</h2><p class="hint">Tu proforma se guardó correctamente.</p>
       <button class="btn primary" data-act="pdf">Descargar PDF</button>
-      <button class="btn wa" data-go="wa">Compartir por WhatsApp</button>
-      <button class="btn" data-act="copy">Copiar texto para WhatsApp</button>
+      <button class="btn wa" data-act="share-pdf">Compartir PDF por WhatsApp</button>
       <button class="btn" data-tab="historial">Ver mis proformas</button>
       <button class="btn ghost" data-act="new">Nueva proforma</button></div>
     <div class="actions">
@@ -1005,8 +1004,14 @@ async function downloadPdf(){
   catch(e){toast('No se pudo generar el PDF.');}
 }
 async function sharePdf(){
-  try{const f=await pdfFile();if(!f)return;await navigator.share({files:[f],title:f.name});}
-  catch(e){if(e&&e.name==='AbortError')return;toast('No se pudo compartir. Prueba con Descargar PDF.');}
+  try{
+    const f=await pdfFile();if(!f)return;
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:f.name});return;}
+    saveBlob(f,f.name);
+    let d=String(state.draft.client.phone||'').replace(/\D/g,'');if(d.length===9)d='51'+d;
+    toast('PDF descargado. Adjúntalo en el chat de WhatsApp.');
+    if(d.length>=10)window.open('https://wa.me/'+d,'_blank');
+  }catch(e){if(e&&e.name==='AbortError')return;toast('No se pudo compartir. Prueba con Descargar PDF.');}
 }
 function exportBackup(){
   const data={app:'proformas',version:1,exportedAt:new Date().toISOString(),state:state,history:history};
