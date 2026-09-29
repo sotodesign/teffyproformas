@@ -14,7 +14,7 @@
 <title>Generador de Proformas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap">
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{-webkit-text-size-adjust:100%}
@@ -272,6 +272,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
   .panel{border-radius:24px;padding:18px}
   .hero{padding:24px 20px}
 }
+
+/* ===== Hoja de proforma estilo "Tu belleza en una proforma" ===== */
+.paper{background:linear-gradient(180deg,#fff 0%,#fff7fb 55%,#fde8f2 100%);border:1px solid #f4cfe1;border-radius:18px;padding:20px 18px 0;overflow:hidden;box-shadow:0 8px 26px rgba(168,15,92,.14)}
+.q-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.q-l{min-width:0;flex:1 1 180px}
+.q-title{font-family:'Dancing Script','Segoe Script','Brush Script MT',cursive;font-weight:700;font-size:32px;line-height:1;color:var(--accent);overflow-wrap:anywhere}
+.q-brands{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:8px 0;font-weight:800;font-size:14px}
+.q-brands .b2{color:#d81b78}.q-brands .b3{letter-spacing:.06em}.q-brands .b4{color:#d48fb0;letter-spacing:.1em}.q-brands .b5{color:#c2185b;font-style:italic}
+.q-brands.foot{justify-content:center;margin:4px 0 10px}
+.q-doc{display:flex;flex-direction:column;text-align:right;font-size:12px;color:var(--paper-muted)}
+.q-doc b{font-size:19px;color:var(--paper-ink);font-family:var(--font-display)}
+.q-n{font-weight:700;color:var(--paper-ink)}
+.q-client{margin:14px 0;display:flex;flex-direction:column;gap:1px;overflow-wrap:anywhere;font-size:13px}
+.q-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #edc3d8;border-radius:12px;overflow:hidden;background:#fff;font-variant-numeric:tabular-nums}
+.q-table th{background:#a80f5c;color:#fff;padding:9px 6px;font-size:12px;text-align:left}
+.q-table td{padding:8px 6px;border-top:1px solid #f3dbe7;vertical-align:top}
+.q-table .c{text-align:center;width:34px}.q-table .r{text-align:right;white-space:nowrap}
+.q-table .pn{font-weight:600;overflow-wrap:anywhere}.q-table .pm{font-size:11px;color:var(--paper-muted)}
+.q-table .empty{text-align:center;color:var(--paper-muted);padding:22px 6px}
+.paper .p-tot .big{border:2px solid #d81b78;border-radius:12px;padding:8px 12px;margin-top:6px;color:var(--accent)}
+.q-thanks{text-align:center;font-style:italic;font-weight:700;color:var(--accent);margin:20px 0 2px}
+.paper .p-foot{border:0;text-align:center;margin-top:0;padding-top:0}
+.q-wave{display:block;width:calc(100% + 36px);height:42px;margin:8px -18px 0}
+.total-chip strong{white-space:nowrap;font-size:22px}
+.arow .btn{padding-inline:14px}
 </style>
 </head>
 <body>
@@ -717,33 +742,32 @@ function paperHTML(p,c){
   const until=addDays(p.date,Math.max(0,parseInt(p.validDays,10)||0));
   const ph=(v,f)=>v?esc(v):'<span class="ph">'+f+'</span>';
   const contact=[s.name,s.phone,s.doc?'DNI/RUC '+s.doc:''].filter(Boolean).map(esc).join(' · ');
+  const BR='<span class="b1">ésika</span><span class="b2">cyzone</span><span class="b3">L\'BEL</span>';
+  const BR2=BR+'<span class="b4">AVON</span><span class="b5">natura</span>';
   const rows=p.items.length?p.items.map((it,i)=>{
     const d=clamp(num(it.disc),0,100);
-    const meta=[it.brand,it.code].filter(Boolean).map(esc).join(' · ');
-    const extra=d>0?'dcto. '+d+'%':'';
-    const line=[meta,extra].filter(Boolean).join(' · ');
-    return '<tr><td class="c">'+num(it.qty)+'</td><td><div class="pn">'+ph(it.name,'Producto sin nombre')+'</div>'+(line?'<div class="pm">'+line+'</div>':'')+'</td><td class="r">'+money(num(it.price))+'</td><td class="r">'+money(c.lines[i].total)+'</td></tr>';
-  }).join(''):'<tr><td colspan="4" class="empty">Agrega productos para ver el detalle aquí.</td></tr>';
+    const meta=[[it.brand,it.code].filter(Boolean).map(esc).join(' · '),d>0?'dcto. '+d+'%':''].filter(Boolean).join(' · ');
+    return '<tr><td class="c">'+(i+1)+'</td><td><div class="pn">'+ph(it.name,'Producto sin nombre')+'</div>'+(meta?'<div class="pm">'+meta+'</div>':'')+'</td><td class="c">'+num(it.qty)+'</td><td class="r">'+money(num(it.price))+'</td><td class="r">'+money(c.lines[i].total)+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" class="empty">Agrega productos para ver el detalle aquí.</td></tr>';
   let tot='<div><span>Subtotal</span><span>'+money(c.subtotal)+'</span></div>';
   if(c.discount>0)tot+='<div><span>Descuento ('+c.gd+'%)</span><span>-'+money(c.discount)+'</span></div>';
   if(c.ship>0)tot+='<div><span>Envío</span><span>'+money(c.ship)+'</span></div>';
   tot+='<div class="big"><span>Total</span><span>'+money(c.total)+'</span></div>';
   if(p.igv)tot+='<div class="m"><span>Valor de venta</span><span>'+money(c.igvBase)+'</span></div><div class="m"><span>IGV (18%) incluido</span><span>'+money(c.igvAmt)+'</span></div>';
   if(c.deposit>0)tot+='<div><span>Adelanto</span><span>-'+money(c.deposit)+'</span></div><div class="bal"><span>Saldo por pagar</span><span>'+money(c.balance)+'</span></div>';
-  return '<div class="p-head"><div><div class="p-biz">'+ph(s.business,'Nombre de tu negocio')+'</div>'+
+  const cl=p.client;
+  return '<div class="q-head"><div class="q-l"><div class="q-title">'+(s.business?esc(s.business):'Tu belleza en una proforma')+'</div><div class="q-brands">'+BR+'</div>'+
       (contact?'<div class="p-sub">'+contact+'</div>':'')+(s.address?'<div class="p-sub">'+esc(s.address)+'</div>':'')+'</div>'+
-      '<div class="p-doc"><div class="p-kind">PROFORMA</div><div class="p-num">'+esc(num_)+'</div></div></div>'+
-    '<div class="p-meta"><div><span class="p-label">Fecha</span>'+esc(fmtDate(p.date))+'</div>'+
-      '<div><span class="p-label">Válida hasta</span>'+esc(fmtDate(until))+'</div>'+
-      (p.campaign?'<div><span class="p-label">Campaña</span>'+esc(p.campaign)+'</div>':'')+'</div>'+
-    '<div class="p-client"><span class="p-label">Cliente</span><strong>'+ph(p.client.name,'Nombre del cliente')+'</strong>'+
-      (p.client.phone?'<span>'+esc(p.client.phone)+'</span>':'')+(p.client.doc?'<span>DNI/RUC '+esc(p.client.doc)+'</span>':'')+(p.client.address?'<span>'+esc(p.client.address)+'</span>':'')+'</div>'+
-    '<table class="p-table"><thead><tr><th class="c">Cant.</th><th>Descripción</th><th class="r">P. unit.</th><th class="r">Importe</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      '<div class="q-doc"><b>PROFORMA</b><span class="q-n">N.° '+esc(num_)+'</span><span>Fecha: '+esc(fmtDate(p.date))+'</span><span>Válida hasta: '+esc(fmtDate(until))+'</span>'+(p.campaign?'<span>Campaña: '+esc(p.campaign)+'</span>':'')+'</div></div>'+
+    '<div class="q-client"><b>Cliente:</b><b>'+ph(cl.name,'Nombre del cliente')+'</b>'+(cl.doc?'<span>DNI/RUC: '+esc(cl.doc)+'</span>':'')+(cl.phone?'<span>Cel: '+esc(cl.phone)+'</span>':'')+(cl.address?'<span><b>Dirección:</b> '+esc(cl.address)+'</span>':'')+'</div>'+
+    '<table class="q-table"><thead><tr><th class="c">N.°</th><th>Producto</th><th class="c">Cant.</th><th class="r">P. unit.</th><th class="r">Total</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="p-tot">'+tot+'</div>'+
     (c.savings>0.004?'<div class="p-save">Con esta proforma ahorras '+money(c.savings)+'</div>':'')+
     (p.notes?'<div class="p-block"><span class="p-label">Notas</span>'+esc(p.notes)+'</div>':'')+
     (s.payment?'<div class="p-block"><span class="p-label">Formas de pago</span>'+esc(s.payment)+'</div>':'')+
-    '<div class="p-foot">Proforma referencial. No es comprobante de pago.</div>';
+    '<div class="q-thanks">¡Gracias por tu confianza!</div><div class="q-brands foot">'+BR2+'</div>'+
+    '<div class="p-foot">Proforma referencial. No es comprobante de pago.</div>'+
+    '<svg class="q-wave" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18C80-6 160 40 240 18S360 0 400 14V40H0Z" fill="#f8c9df"/></svg>';
 }
 
 function waText(p,c){
@@ -844,59 +868,65 @@ function makePdf(p){
   const c=calc(p),s=state.seller,J=window.jspdf.jsPDF;
   const doc=new J({unit:'pt',format:'a4'});
   const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=44;
-  const INK=[28,26,36],MUTED=[103,99,122],ACC=[184,18,95];
+  const INK=[28,26,36],MUTED=[103,99,122],ACC=[168,15,92],PINK=[216,27,120];
   const label=numLabel(p.number||state.counter);
+  const bg=()=>{doc.setFillColor(255,247,251);doc.rect(0,0,W,H,'F');};
+  bg();
   let y=M;
-  doc.setTextColor.apply(doc,INK);doc.setFont('helvetica','bold');doc.setFontSize(20);
-  doc.text(doc.splitTextToSize(s.business||'Mi negocio',W-2*M-150),M,y+16);
+  doc.setTextColor.apply(doc,ACC);doc.setFont('times','bolditalic');doc.setFontSize(26);
+  doc.text(doc.splitTextToSize(s.business||'Tu belleza en una proforma',W-2*M-150),M,y+20);
+  let bx=M;const by=y+42;
+  [['ésika',INK],['cyzone',PINK],["L'BEL",INK]].forEach(b=>{doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor.apply(doc,b[1]);doc.text(b[0],bx,by);bx+=doc.getTextWidth(b[0])+16;});
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor.apply(doc,MUTED);
-  let ly=y+34;
+  let ly=by+16;
   const contact=[s.name,s.phone,s.doc?'DNI/RUC '+s.doc:''].filter(Boolean).join('   |   ');
   if(contact){doc.text(doc.splitTextToSize(contact,W-2*M-150),M,ly);ly+=12;}
   if(s.address){doc.text(doc.splitTextToSize(s.address,W-2*M-150),M,ly);ly+=12;}
-  doc.setTextColor.apply(doc,ACC);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('PROFORMA',W-M,y+8,{align:'right'});
-  doc.setTextColor.apply(doc,INK);doc.setFontSize(20);doc.text(label,W-M,y+28,{align:'right'});
-  y=Math.max(ly,y+44)+8;
-  doc.setDrawColor.apply(doc,INK);doc.setLineWidth(1.5);doc.line(M,y,W-M,y);y+=18;
-  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor.apply(doc,MUTED);
   const until=addDays(p.date,Math.max(0,parseInt(p.validDays,10)||0));
-  doc.text('Fecha: '+fmtDate(p.date)+'     Válida hasta: '+fmtDate(until)+(p.campaign?'     Campaña: '+p.campaign:''),M,y);y+=20;
-  doc.setFont('helvetica','bold');doc.setTextColor.apply(doc,ACC);doc.text('CLIENTE',M,y);y+=13;
-  doc.setTextColor.apply(doc,INK);doc.setFontSize(11);doc.text(p.client.name||'-',M,y);y+=13;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor.apply(doc,INK);doc.text('PROFORMA',W-M,y+16,{align:'right'});
+  doc.setFontSize(10);doc.text('N.° '+label,W-M,y+32,{align:'right'});
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor.apply(doc,MUTED);
-  [p.client.phone,p.client.doc?'DNI/RUC '+p.client.doc:'',p.client.address].filter(Boolean).forEach(t=>{doc.text(doc.splitTextToSize(t,W-2*M),M,y);y+=12;});
-  y+=6;
+  doc.text('Fecha: '+fmtDate(p.date),W-M,y+46,{align:'right'});
+  doc.text('Válida hasta: '+fmtDate(until),W-M,y+58,{align:'right'});
+  if(p.campaign)doc.text('Campaña: '+p.campaign,W-M,y+70,{align:'right'});
+  y=Math.max(ly,y+(p.campaign?78:66))+10;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor.apply(doc,INK);doc.text('Cliente:',M,y);y+=13;
+  doc.setFontSize(11);doc.text(p.client.name||'-',M,y);y+=13;
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+  [p.client.doc?'DNI/RUC: '+p.client.doc:'',p.client.phone?'Cel: '+p.client.phone:'',p.client.address?'Dirección: '+p.client.address:''].filter(Boolean).forEach(t=>{doc.text(doc.splitTextToSize(t,W-2*M),M,y);y+=12;});
+  y+=8;
   doc.autoTable({
-    startY:y,margin:{left:M,right:M},theme:'plain',
-    head:[['Cant.','Descripción','P. unit.','Dcto.','Importe']],
+    startY:y,margin:{left:M,right:M},theme:'grid',
+    head:[['N.°','Producto','Cant.','P. unit.','Total']],
     body:p.items.map((it,i)=>{
       const meta=[it.brand,it.code].filter(Boolean).join(' - ');
       const d=clamp(num(it.disc),0,100);
-      return [String(num(it.qty)),(it.name||'Producto')+(meta?'\n'+meta:''),money(num(it.price)),d>0?d+'%':'-',money(c.lines[i].total)];
+      return [String(i+1),(it.name||'Producto')+(meta||d>0?'\n'+[meta,d>0?'dcto. '+d+'%':''].filter(Boolean).join(' - '):''),String(num(it.qty)),money(num(it.price)),money(c.lines[i].total)];
     }),
-    styles:{font:'helvetica',fontSize:9,cellPadding:{top:6,bottom:6,left:4,right:4},textColor:INK,lineColor:[220,216,230],lineWidth:{bottom:0.5}},
-    headStyles:{fontStyle:'bold',textColor:MUTED,fontSize:8,lineColor:INK,lineWidth:{bottom:1}},
-    columnStyles:{0:{halign:'center',cellWidth:38},2:{halign:'right',cellWidth:66},3:{halign:'right',cellWidth:40},4:{halign:'right',cellWidth:72}},
-    didParseCell:d=>{if(d.section==='head'&&(d.column.index>=2))d.cell.styles.halign='right';if(d.section==='head'&&d.column.index===0)d.cell.styles.halign='center';}
+    styles:{font:'helvetica',fontSize:9,cellPadding:{top:6,bottom:6,left:5,right:5},textColor:INK,lineColor:[237,195,216],lineWidth:0.5,fillColor:[255,255,255]},
+    headStyles:{fillColor:ACC,textColor:[255,255,255],fontStyle:'bold',fontSize:9},
+    columnStyles:{0:{halign:'center',cellWidth:34},2:{halign:'center',cellWidth:42},3:{halign:'right',cellWidth:70},4:{halign:'right',cellWidth:72}},
+    didParseCell:d=>{if(d.section==='head'){const k=d.column.index;d.cell.styles.halign=(k===0||k===2)?'center':(k>=3?'right':'left');}},
+    willDrawPage:d=>{if(d.pageNumber>1)bg();}
   });
-  y=doc.lastAutoTable.finalY+16;
-  const ensure=n=>{if(y+n>H-M){doc.addPage();y=M;}};
+  y=doc.lastAutoTable.finalY+18;
+  const ensure=n=>{if(y+n>H-M){doc.addPage();bg();y=M;}};
   const rows=[['Subtotal',money(c.subtotal),0]];
   if(c.discount>0)rows.push(['Descuento ('+c.gd+'%)','-'+money(c.discount),0]);
   if(c.ship>0)rows.push(['Envío',money(c.ship),0]);
   rows.push(['TOTAL',money(c.total),2]);
   if(p.igv){rows.push(['Valor de venta',money(c.igvBase),3]);rows.push(['IGV (18%) incluido',money(c.igvAmt),3]);}
   if(c.deposit>0){rows.push(['Adelanto','-'+money(c.deposit),0]);rows.push(['Saldo por pagar',money(c.balance),1]);}
-  ensure(rows.length*16+20);
+  ensure(rows.length*18+30);
   const X=W-M-200;
   rows.forEach(r=>{
     const kind=r[2];
-    if(kind===2){doc.setDrawColor.apply(doc,INK);doc.setLineWidth(1);doc.line(X,y-11,W-M,y-11);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor.apply(doc,INK);}
+    if(kind===2){doc.setDrawColor.apply(doc,PINK);doc.setLineWidth(1.3);doc.roundedRect(X-8,y-17,216,28,6,6,'S');doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor.apply(doc,ACC);}
     else if(kind===1){doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor.apply(doc,ACC);}
     else if(kind===3){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor.apply(doc,MUTED);}
     else{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor.apply(doc,INK);}
     doc.text(r[0],X,y);doc.text(r[1],W-M,y,{align:'right'});
-    y+=kind===2?20:16;
+    y+=kind===2?30:17;
   });
   if(c.savings>0.004){ensure(20);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor.apply(doc,ACC);doc.text('Con esta proforma ahorras '+money(c.savings),W-M,y,{align:'right'});y+=18;}
   const block=(title,text)=>{
@@ -907,10 +937,16 @@ function makePdf(p){
     doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor.apply(doc,INK);doc.text(lines,M,y);y+=lines.length*12+6;
   };
   block('Notas',p.notes);block('Formas de pago',s.payment);
-  ensure(30);
-  doc.setDrawColor(220,216,230);doc.setLineWidth(0.5);doc.line(M,y+6,W-M,y+6);
+  ensure(80);y+=12;
+  doc.setFont('times','bolditalic');doc.setFontSize(13);doc.setTextColor.apply(doc,ACC);
+  doc.text('¡Gracias por tu confianza!',W/2,y,{align:'center'});y+=16;
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(200,90,140);
+  doc.text("ésika      cyzone      L'BEL      AVON      natura",W/2,y,{align:'center'});y+=14;
   doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor.apply(doc,MUTED);
-  doc.text('Proforma referencial. No es comprobante de pago.',M,y+20);
+  doc.text('Proforma referencial. No es comprobante de pago.',W/2,y,{align:'center'});
+  const y0=H-32;
+  doc.setFillColor(248,201,223);
+  doc.lines([[W*0.25,-14,W*0.25,14,W*0.5,0],[W*0.25,-14,W*0.25,14,W*0.5,0],[0,H-y0],[-W,0]],0,y0,[1,1],'F',true);
   return doc.output('blob');
 }
 function pdfFile(){
