@@ -220,9 +220,38 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .actions .btns .btn{flex:none}
 .toast{bottom:190px}
 @media (min-width:900px){.actions{bottom:76px}}
+
+/* ===== Flujo por pasos, inicio y bienvenida ===== */
+.steps{display:flex;gap:6px}.steps span{flex:1;text-align:center;padding:9px 4px;border-radius:999px;background:#fff;color:var(--muted);font-weight:600;font-size:13px;box-shadow:var(--shadow)}
+.steps span.on{background:var(--grad);color:#fff}
+#tab-proforma .panel[data-s]{display:none}
+#tab-proforma[data-step="1"] .panel[data-s="1"],#tab-proforma[data-step="2"] .panel[data-s="2"]{display:flex}
+#tab-proforma[data-step="1"] .preview-col,#tab-proforma[data-step="2"] .preview-col{display:none}
+#tab-proforma[data-step="3"] .editor{display:none}
+#tab-proforma[data-step="3"] .preview-col{display:flex;position:static}
+#tab-proforma .split{grid-template-columns:minmax(0,1fr)}
+#tab-proforma[data-step="4"] :is(.split,.steps,.actions){display:none}
+.done{display:none;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:24px 4px}
+#tab-proforma[data-step="4"] .done{display:flex}
+.done .btn{width:100%;min-height:48px}
+.done .ok{width:84px;height:84px;border-radius:50%;background:var(--grad);color:#fff;font-size:44px;display:grid;place-items:center}
+.done .btn.wa{border:2px solid var(--accent);color:var(--accent)}
+.arow .btn{min-height:44px}
+.hero{border-radius:24px;padding:22px 18px;color:#fff;background:linear-gradient(135deg,#f06aa8,#8e0f52);display:flex;flex-direction:column;gap:10px;align-items:flex-start;box-shadow:var(--shadow)}
+.hero h2{font-size:27px;line-height:1.1}.hero .btn{color:var(--accent);border:0}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.q{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;font-weight:600;font-size:12px;cursor:pointer;color:var(--fg)}
+.q i{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;box-shadow:var(--shadow)}
+.q svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brands{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.brands button{border:1px solid var(--line);background:#fff;border-radius:14px;min-height:54px;font-family:var(--font-display);font-weight:800;font-size:16px;cursor:pointer;color:var(--accent)}
+#splash{position:fixed;inset:0;z-index:100;background:linear-gradient(160deg,#ffd3e6,#e6237f 55%,#8e0f52);color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:18px;padding:32px}
+#splash h1{font-size:40px;line-height:1.05;font-style:italic}
+#splash .btn{color:var(--accent);border:0;min-height:50px;padding-inline:32px}
 </style>
 </head>
 <body>
+<div id="splash"><h1>Tu belleza también genera grandes historias</h1><p>Crea tus proformas de forma rápida y profesional con Ésika, Cyzone, L'Bel, Avon y más.</p><button class="btn" id="goSplash">Comenzar</button></div>
 <div class="app">
   <header class="top">
     <div class="brand">
@@ -243,23 +272,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
     </div>
   </div>
 
-  <nav class="tabs" role="tablist" aria-label="Secciones">
-    <button class="tab" role="tab" data-tab="proforma" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Proforma</span></button>
-    <button class="tab" role="tab" data-tab="catalogo" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l1 13H5z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Productos</span></button>
-    <button class="tab" role="tab" data-tab="clientes" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Clientes</span></button>
-    <button class="tab" role="tab" data-tab="historial" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Historial</span></button>
-    <button class="tab" role="tab" data-tab="negocio" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l1-5h14l1 5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-4 0M5 12v8h14v-8"/></svg><span>Negocio</span></button>
-  </nav>
+  <nav class="tabs" role="tablist" aria-label="Secciones"><button class="tab" role="tab" data-tab="inicio" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button><button class="tab" role="tab" data-tab="catalogo" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H5zM19 4h-5v14"/></svg><span>Catálogos</span></button><button class="tab" role="tab" data-tab="proforma" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Proforma</span></button><button class="tab" role="tab" data-tab="clientes" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Clientes</span></button><button class="tab" role="tab" data-tab="historial" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Historial</span></button></nav>
 
   <!-- PROFORMA -->
-  <section class="tabpane" id="tab-proforma">
-    <div class="seg" role="group" aria-label="Vista">
-      <button data-view="edit" aria-pressed="true">Editar</button>
-      <button data-view="preview" aria-pressed="false">Vista previa</button>
-    </div>
+  <section class="tabpane" id="tab-inicio">
+    <div class="hero"><h2>Belleza que te hace brillar</h2><p>Crea tus proformas de forma rápida y profesional.</p><button class="btn" data-tab="proforma">Crear proforma</button></div>
+    <div class="quick"><button class="q" data-tab="catalogo"><i style="background:#ec407a"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H5zM19 4h-5v14"/></svg></i>Productos</button><button class="q" data-tab="historial"><i style="background:#26b5a0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>Mis proformas</button><button class="q" data-tab="clientes"><i style="background:#8e5bd6"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></i>Clientes</button><button class="q" data-tab="negocio"><i style="background:#f5a623"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></i>Ajustes</button></div>
+    <section class="panel"><h2>Marcas</h2><div class="brands"><button data-brandgo="Ésika">Ésika</button><button data-brandgo="Cyzone">Cyzone</button><button data-brandgo="L'Bel">L'Bel</button><button data-brandgo="Avon">Avon</button><button data-brandgo="Natura">Natura</button><button data-brandgo="Yanbal">Yanbal</button></div></section>
+    <section class="panel"><h2>¿Listo para generar tu proforma?</h2><p class="hint">Agrega productos, elige al cliente y descarga el PDF en pocos pasos.</p><button class="btn primary" data-tab="proforma">Empezar</button></section>
+  </section>
+  <section class="tabpane" id="tab-proforma" data-step="1" hidden>
+    <div class="steps" id="steps"><span data-s="1">1 Productos</span><span data-s="2">2 Cliente</span><span data-s="3">3 Resumen</span></div>
     <div class="split" id="split" data-view="edit">
       <div class="editor">
-        <section class="panel">
+        <section class="panel" data-s="2">
           <h2>Datos de la proforma <span class="num" id="numLabel"></span></h2>
           <div class="grid">
             <label class="field"><span>Fecha</span><input type="date" data-bind="draft.date"></label>
@@ -268,7 +294,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel" data-s="2">
           <h2>Cliente</h2>
           <label class="field"><span>Cliente guardado</span>
             <select id="clientSelect"></select>
@@ -282,7 +308,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           <div class="row-end"><button class="btn sm" data-act="save-client">Guardar en mis clientes</button></div>
         </section>
 
-        <section class="panel">
+        <section class="panel" data-s="1">
           <h2>Productos</h2>
           <label class="field"><span>Buscar en mis productos</span>
             <input type="search" id="catSearch" placeholder="Nombre, marca o página" autocomplete="off">
@@ -292,7 +318,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           <div class="row-end"><button class="btn sm" data-act="add-line">Agregar línea manual</button></div>
         </section>
 
-        <section class="panel">
+        <section class="panel" data-s="1">
           <h2>Descuento, envío y notas</h2>
           <div class="grid">
             <label class="field"><span>Descuento general (%)</span><input type="number" min="0" max="100" step="0.5" inputmode="decimal" data-bind="draft.globalDisc" placeholder="0"></label>
@@ -315,18 +341,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
       </div>
     </div>
 
+    <div class="done" id="done"><div class="ok">&#10003;</div><h2>¡Listo!</h2><p class="hint">Tu proforma se guardó correctamente.</p>
+      <button class="btn primary" data-act="pdf">Descargar PDF</button>
+      <button class="btn wa" data-go="wa">Compartir por WhatsApp</button>
+      <button class="btn" data-act="copy">Copiar texto para WhatsApp</button>
+      <button class="btn" data-tab="historial">Ver mis proformas</button>
+      <button class="btn ghost" data-act="new">Nueva proforma</button></div>
     <div class="actions">
-      <div class="arow">
-        <div class="total-chip"><span>Total a pagar</span><strong id="totalChip">S/ 0.00</strong></div>
-        <button class="btn primary" data-act="save">Guardar proforma</button>
-      </div>
-      <div class="btns">
-        <button class="btn sm" data-act="pdf" id="btnPdf">Descargar PDF</button>
-        <button class="btn sm" data-act="share-pdf" id="btnShare" hidden>Compartir PDF</button>
-        <button class="btn sm" data-act="copy">Copiar para WhatsApp</button>
-        <a class="btn sm" id="waLink" href="#" target="_blank" rel="noopener" hidden>Abrir WhatsApp</a>
-        <button class="btn sm ghost" data-act="new">Nueva</button>
-      </div>
+      <div class="arow"><div class="total-chip"><span>Total a pagar</span><strong id="totalChip">S/ 0.00</strong></div>
+        <button class="btn" data-go="back" id="btnBack" hidden>Atrás</button>
+        <button class="btn primary" data-go="next" id="btnNext">Siguiente</button></div>
+      <div class="btns" hidden><button data-act="save" id="btnSave"></button>
+        <button class="btn sm" data-act="pdf" id="btnPdf">PDF</button><button class="btn sm" data-act="share-pdf" id="btnShare" hidden>Compartir</button>
+        <a class="btn sm" id="waLink" href="#" hidden>WhatsApp</a></div>
     </div>
   </section>
 
@@ -760,7 +787,7 @@ async function saveProforma(){
   if(i>=0)history[i]=entry;else history.unshift(entry);
   history.sort((a,b)=>String(b.savedAt).localeCompare(String(a.savedAt)));
   updateTotals();renderHistory();
-  toast('Proforma '+numLabel(p.number)+' guardada en el historial.');
+  toast('Proforma '+numLabel(p.number)+' guardada en el historial.');if(window.__saved)window.__saved();
   touch();
   await storeHistory(entry,false);
 }
@@ -1020,6 +1047,36 @@ $('#importFile').addEventListener('change',e=>{const f=e.target.files[0];if(f)im
   try{if(navigator.canShare&&navigator.canShare({files:[new File(['x'],'x.pdf',{type:'application/pdf'})]}))$('#btnShare').hidden=false;}catch(e){}
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
+})();
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const P=$('#tab-proforma');let step=1;
+function say(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>t.classList.remove('on'),2600);}
+function go(n){step=n;P.dataset.step=n;$$('#steps span').forEach(s=>s.classList.toggle('on',+s.dataset.s===n));
+  $('#btnBack').hidden=n===1;$('#btnNext').textContent=n===3?'Generar proforma':'Siguiente';window.scrollTo(0,0);}
+window.__saved=()=>go(4);
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');
+  if(g){const k=g.dataset.go;
+    if(k==='back')go(Math.max(1,step-1));
+    if(k==='next'){
+      if(step===1&&!$$('#items .item').length)return say('Agrega al menos un producto.');
+      if(step===2&&!$('#b-draft-client-name').value.trim())return say('Escribe el nombre del cliente.');
+      if(step===3)$('#btnSave').click();else go(step+1);}
+    if(k==='wa'){const w=$('#waLink');if(!w.hidden)window.open(w.href,'_blank');else say('Agrega el celular del cliente para abrir WhatsApp.');}
+    return;}
+  const b=e.target.closest('[data-brandgo]');
+  if(b){$('.tab[data-tab="catalogo"]').click();$$('.chip[data-brand]').forEach(c=>{if(c.dataset.brand===b.dataset.brandgo)c.click();});return;}
+  const a=e.target.closest('[data-act]'),act=a&&a.dataset.act;
+  if(act==='new'||act==='open-hist'||act==='dup-hist')go(1);
+  const t=e.target.closest('[data-tab]');if(t&&t.dataset.tab==='proforma'&&step===4)go(1);
+});
+go(1);
+const sp=$('#splash');let seen=false;try{seen=localStorage.getItem('pf-welcome');}catch(e){}
+if(seen)sp.hidden=true;
+$('#goSplash').onclick=()=>{sp.hidden=true;try{localStorage.setItem('pf-welcome','1');}catch(e){}};
 })();
 </script>
 </body>
