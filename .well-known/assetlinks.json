@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.teffyproformas.twa",
+        "sha256_cert_fingerprints": ["5F:07:F4:11:93:E0:D9:D7:1F:A9:3A:F8:2F:D0:6B:FC:F5:31:EE:DE:BC:B0:F2:D1:D5:39:F2:2D:F2:1E:7C:9D"]
+      }
+    }]
