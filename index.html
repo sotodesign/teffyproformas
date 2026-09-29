@@ -310,10 +310,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
     <section class="panel"><h2>¿Listo para generar tu proforma?</h2><p class="hint">Agrega productos, elige al cliente y descarga el PDF en pocos pasos.</p><button class="btn primary" data-tab="proforma">Empezar</button></section>
   </section>
   <section class="tabpane" id="tab-proforma" data-step="1" hidden>
-    <div class="steps" id="steps"><span data-s="1">1 Productos</span><span data-s="2">2 Cliente</span><span data-s="3">3 Resumen</span></div>
+    <div class="steps" id="steps"><span data-s="1">1 Cliente</span><span data-s="2">2 Productos</span><span data-s="3">3 Resumen</span></div>
     <div class="split" id="split" data-view="edit">
       <div class="editor">
-        <section class="panel" data-s="2">
+        <section class="panel" data-s="1">
           <h2>Datos de la proforma <span class="num" id="numLabel"></span></h2>
           <div class="grid">
             <label class="field"><span>Fecha</span><input type="date" data-bind="draft.date"></label>
@@ -322,7 +322,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           </div>
         </section>
 
-        <section class="panel" data-s="2">
+        <section class="panel" data-s="1">
           <h2>Cliente</h2>
           <label class="field"><span>Cliente guardado</span>
             <select id="clientSelect"></select>
@@ -336,7 +336,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           <div class="row-end"><button class="btn sm" data-act="save-client">Guardar en mis clientes</button></div>
         </section>
 
-        <section class="panel" data-s="1">
+        <section class="panel" data-s="2">
           <h2>Productos</h2>
           <label class="field"><span>Buscar en mis productos</span>
             <input type="search" id="catSearch" placeholder="Nombre, marca o página" autocomplete="off">
@@ -346,7 +346,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           <div class="row-end"><button class="btn sm" data-act="add-line">Agregar línea manual</button></div>
         </section>
 
-        <section class="panel" data-s="1">
+        <section class="panel" data-s="2">
           <h2>Descuento, envío y notas</h2>
           <div class="grid">
             <label class="field"><span>Descuento general (%)</span><input type="number" min="0" max="100" step="0.5" inputmode="decimal" data-bind="draft.globalDisc" placeholder="0"></label>
@@ -959,7 +959,7 @@ function importBackup(file){
 document.addEventListener('click',ev=>{
   const tab=ev.target.closest('[data-tab]');
   if(tab){setTab(tab.dataset.tab);return;}
-  const view=ev.target.closest('[data-view]');
+  const view=ev.target.closest('button[data-view]');
   if(view){$('#split').dataset.view=view.dataset.view;syncSeg();return;}
   const b=ev.target.closest('[data-act]');
   if(!b)return;
@@ -1091,8 +1091,8 @@ document.addEventListener('click',e=>{
   if(g){const k=g.dataset.go;
     if(k==='back')go(Math.max(1,step-1));
     if(k==='next'){
-      if(step===1&&!$$('#items .item').length)return say('Agrega al menos un producto.');
-      if(step===2&&!$('#b-draft-client-name').value.trim())return say('Escribe el nombre del cliente.');
+      if(step===1&&!$('#b-draft-client-name').value.trim())return say('Escribe el nombre del cliente.');
+      if(step===2&&!$$('#items .item').length)return say('Agrega al menos un producto.');
       if(step===3)$('#btnSave').click();else go(step+1);}
     if(k==='wa'){const w=$('#waLink');if(!w.hidden)window.open(w.href,'_blank');else say('Agrega el celular del cliente para abrir WhatsApp.');}
     return;}
