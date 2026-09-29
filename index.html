@@ -31,22 +31,6 @@ img{max-width:100%}
   --good:#17714a; --warn:#9a5a00; --danger:#b3261e;
   --paper:#ffffff; --paper-ink:#1c1a24; --paper-muted:#67637a; --paper-line:#dcd8e6; --paper-accent:#b8125f;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#13111a; --surface:#1c1925; --surface-2:#252131; --field:#13111a;
-    --fg:#eeeaf6; --muted:#a29db2; --line:#332e42;
-    --accent:#ff6fb1; --accent-fg:#26001a; --accent-soft:#3b1830;
-    --good:#4ed08f; --warn:#f0b04a; --danger:#ff8a80;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#13111a; --surface:#1c1925; --surface-2:#252131; --field:#13111a;
-  --fg:#eeeaf6; --muted:#a29db2; --line:#332e42;
-  --accent:#ff6fb1; --accent-fg:#26001a; --accent-soft:#3b1830;
-  --good:#4ed08f; --warn:#f0b04a; --danger:#ff8a80;
-  color-scheme:dark;
-}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:16px 40px}
 .app{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0}
@@ -204,6 +188,38 @@ textarea{resize:vertical;min-height:72px}
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;max-width:calc(100vw - 32px);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+
+/* ===== Rediseño móvil: tema claro, tarjetas y navegación inferior ===== */
+:root{--bg:#fdf3f8;--surface:#fff;--surface-2:#fff7fb;--field:#fff;--line:#f1dfe8;--accent:#c2185b;--accent-soft:#fde4f0;--grad:linear-gradient(135deg,#e6237f,#a80f5c);--shadow:0 2px 12px rgba(168,15,92,.09)}
+body{padding-inline:14px;padding-block:14px calc(170px + env(safe-area-inset-bottom))}
+.top{background:var(--grad);color:#fff;border-radius:22px;padding:14px 16px;box-shadow:0 10px 22px rgba(168,15,92,.25)}
+.mark{background:#fff;color:var(--accent);border-radius:13px}
+.top h1{font-size:19px}.top .tag{color:#ffe1ef;font-size:12px}
+.status{background:rgba(255,255,255,.2);border:0;color:#fff}
+.status .dot,.status[data-k="idle"] .dot{background:#fff}
+.status[data-k="saved"] .dot{background:#8dffc0}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:0;overflow:visible;background:#fff;border:0;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px rgba(168,15,92,.08)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0;padding:6px 0;border:0;font-size:11px}
+.tab svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--accent);border:0}
+.panel{border:0;border-radius:20px;box-shadow:var(--shadow)}
+.item,.rowcard{border-radius:16px;border-color:var(--line)}
+input,select,textarea{border-radius:12px;padding:10px 12px}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box-shadow:0 0 0 3px var(--accent-soft)}
+.btn{border-radius:999px}
+.btn.primary,.seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+.seg{border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border-radius:999px}
+.results{border:0;gap:8px;overflow:visible}
+.result{border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.result .plus{width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center}
+.hist{border:0;border-radius:18px;box-shadow:var(--shadow)}
+.actions{bottom:calc(68px + env(safe-area-inset-bottom));flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:8px;border:0;border-radius:20px;box-shadow:0 8px 28px rgba(168,15,92,.2)}
+.arow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.actions .btns{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.actions .btns .btn{flex:none}
+.toast{bottom:190px}
+@media (min-width:900px){.actions{bottom:76px}}
 </style>
 </head>
 <body>
@@ -228,11 +244,11 @@ textarea{resize:vertical;min-height:72px}
   </div>
 
   <nav class="tabs" role="tablist" aria-label="Secciones">
-    <button class="tab" role="tab" data-tab="proforma" aria-selected="true">Proforma</button>
-    <button class="tab" role="tab" data-tab="catalogo" aria-selected="false">Mis productos</button>
-    <button class="tab" role="tab" data-tab="clientes" aria-selected="false">Clientes</button>
-    <button class="tab" role="tab" data-tab="historial" aria-selected="false">Historial</button>
-    <button class="tab" role="tab" data-tab="negocio" aria-selected="false">Mi negocio</button>
+    <button class="tab" role="tab" data-tab="proforma" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Proforma</span></button>
+    <button class="tab" role="tab" data-tab="catalogo" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l1 13H5z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>Productos</span></button>
+    <button class="tab" role="tab" data-tab="clientes" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Clientes</span></button>
+    <button class="tab" role="tab" data-tab="historial" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Historial</span></button>
+    <button class="tab" role="tab" data-tab="negocio" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l1-5h14l1 5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-4 0M5 12v8h14v-8"/></svg><span>Negocio</span></button>
   </nav>
 
   <!-- PROFORMA -->
@@ -300,14 +316,16 @@ textarea{resize:vertical;min-height:72px}
     </div>
 
     <div class="actions">
-      <div class="total-chip"><span>Total a pagar</span><strong id="totalChip">S/ 0.00</strong></div>
-      <div class="btns">
+      <div class="arow">
+        <div class="total-chip"><span>Total a pagar</span><strong id="totalChip">S/ 0.00</strong></div>
         <button class="btn primary" data-act="save">Guardar proforma</button>
-        <button class="btn" data-act="pdf" id="btnPdf">Descargar PDF</button>
-        <button class="btn" data-act="share-pdf" id="btnShare" hidden>Compartir PDF</button>
-        <button class="btn" data-act="copy">Copiar para WhatsApp</button>
-        <a class="btn" id="waLink" href="#" target="_blank" rel="noopener" hidden>Abrir WhatsApp</a>
-        <button class="btn ghost" data-act="new">Nueva</button>
+      </div>
+      <div class="btns">
+        <button class="btn sm" data-act="pdf" id="btnPdf">Descargar PDF</button>
+        <button class="btn sm" data-act="share-pdf" id="btnShare" hidden>Compartir PDF</button>
+        <button class="btn sm" data-act="copy">Copiar para WhatsApp</button>
+        <a class="btn sm" id="waLink" href="#" target="_blank" rel="noopener" hidden>Abrir WhatsApp</a>
+        <button class="btn sm ghost" data-act="new">Nueva</button>
       </div>
     </div>
   </section>
