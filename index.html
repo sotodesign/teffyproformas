@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>try{var m=localStorage.getItem("pf-theme")||"light";document.documentElement.dataset.theme=m==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):m}catch(e){}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#b8125f">
 <meta name="mobile-web-app-capable" content="yes">
@@ -301,6 +302,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .prof{display:flex;align-items:center;gap:8px;border:0;border-radius:999px;background:rgba(255,255,255,.2);color:#fff;padding:4px 14px 4px 4px;font-weight:600;cursor:pointer}
 .prof:hover{background:rgba(255,255,255,.3)}
 .pav{width:30px;height:30px;border-radius:50%;background:#fff;color:var(--accent);display:grid;place-items:center;font-family:var(--font-display);font-weight:800}
+
+.photo-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.photo-btns{display:flex;gap:8px;flex-wrap:wrap}
+.pprev{width:84px;height:84px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:34px;flex:none;box-shadow:var(--shadow)}
+.avatar,.pav,.pprev{overflow:hidden}
+.paper{--accent:#c2185b}
+/* ===== Modo oscuro ===== */
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14101a;--surface:#1f1a29;--surface-2:#282234;--field:#15111c;--fg:#f4eff9;--muted:#ada5bd;--line:#352d45;--accent:#ff7ab8;--accent-soft:#3d1732;--shadow:0 2px 12px rgba(0,0,0,.4)}
+:root[data-theme="dark"] .tabs{background:var(--surface);border-color:var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.35)}
+:root[data-theme="dark"] :is(.steps span,.brands button){background:var(--surface);border-color:var(--line)}
+:root[data-theme="dark"] .result{background:var(--surface)}
 </style>
 </head>
 <body>
@@ -462,6 +474,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 
   <!-- MI NEGOCIO -->
   <section class="tabpane" id="tab-negocio" hidden>
+    <section class="panel">
+      <h2>Foto y apariencia</h2>
+      <div class="photo-row"><div class="pprev" id="profPrev">S</div>
+        <div class="photo-btns"><button class="btn sm primary" id="photoPick">Cambiar foto</button><button class="btn sm" id="photoDel">Quitar foto</button></div>
+        <input type="file" id="photoFile" accept="image/*" hidden></div>
+      <div class="field"><span>Apariencia</span><div class="chips">
+        <button class="chip" data-theme-set="light" aria-pressed="true">Claro</button>
+        <button class="chip" data-theme-set="dark" aria-pressed="false">Oscuro</button>
+        <button class="chip" data-theme-set="auto" aria-pressed="false">Automático</button></div></div>
+    </section>
     <section class="panel">
       <h2>Mi perfil: datos que salen en tus proformas</h2>
       <div class="grid">
@@ -1192,7 +1214,8 @@ $('#goSplash').onclick=()=>{sp.hidden=true;try{localStorage.setItem('pf-welcome'
 const $=s=>document.querySelector(s);
 function paint(){
   const e=$('#b-seller-name'),n=e&&e.value.trim()?e.value.trim().split(/\s+/)[0]:'';
-  $('#hiName').textContent='¡Hola'+(n?', '+n:'')+'! 👋';$('#hiAv').textContent=(n||'S')[0].toUpperCase();$('#topAv').textContent=(n||'S')[0].toUpperCase();$('#topName').textContent=n||'Mi perfil';
+  $('#hiName').textContent='¡Hola'+(n?', '+n:'')+'! 👋';const ini=(n||'S')[0].toUpperCase();let ph='';try{ph=localStorage.getItem('pf-photo')||'';}catch(x){}
+  ['#hiAv','#topAv','#profPrev'].forEach(sl=>{const a=$(sl);if(!a)return;if(ph){a.style.backgroundImage='url('+ph+')';a.style.backgroundSize='cover';a.style.backgroundPosition='center';a.textContent='';}else{a.style.backgroundImage='';a.textContent=ini;}});$('#topName').textContent=n||'Mi perfil';
   let hs=[];try{hs=JSON.parse(localStorage.getItem('pf-history')||'[]');}catch(x){}
   const d=new Date(),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
   const m=hs.filter(x=>String(x.date).startsWith(k));
@@ -1207,6 +1230,22 @@ $('#goSplash').addEventListener('click',()=>{
   if(v&&e){e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));}
 });
 paint();
+const mq=matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(){let m='light';try{m=localStorage.getItem('pf-theme')||'light';}catch(x){}
+  document.documentElement.dataset.theme=m==='auto'?(mq.matches?'dark':'light'):m;
+  document.querySelectorAll('[data-theme-set]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeSet===m)));}
+if(mq.addEventListener)mq.addEventListener('change',applyTheme);
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-theme-set]');if(!t)return;
+  try{localStorage.setItem('pf-theme',t.dataset.themeSet);}catch(x){}applyTheme();});
+applyTheme();
+$('#photoPick').addEventListener('click',()=>$('#photoFile').click());
+$('#photoDel').addEventListener('click',()=>{try{localStorage.removeItem('pf-photo');}catch(x){}paint();});
+$('#photoFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+    const S=256,c=document.createElement('canvas');c.width=c.height=S;const m=Math.min(im.width,im.height);
+    c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S);
+    try{localStorage.setItem('pf-photo',c.toDataURL('image/jpeg',0.85));}catch(x){}
+    paint();};im.src=r.result;};r.readAsDataURL(f);e.target.value='';});
 })();
 </script>
 </body>
