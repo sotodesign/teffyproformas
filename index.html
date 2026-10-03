@@ -320,7 +320,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 <div class="app">
   <header class="top">
     <div class="brand">
-      <span class="mark" aria-hidden="true">S/</span>
+      <span class="mark" aria-hidden="true">$</span>
       <div>
         <h1>Generador de Proformas</h1>
         <p class="tag">Para ventas por catálogo: Ésika, Cyzone, L'Bel y más</p>
@@ -344,10 +344,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
     <div class="hi"><div><h2 id="hiName">¡Hola! 👋</h2><p class="hint">Qué bueno verte de nuevo</p></div><button class="avatar" data-tab="negocio" id="hiAv" aria-label="Mi negocio">S</button></div>
     <section class="panel sum"><h2 id="sumMonth">Resumen del mes</h2>
       <div class="sumrow"><span>Proformas creadas</span><strong id="sumN">0</strong></div>
-      <div class="sumrow"><span>Total cotizado</span><strong id="sumT">S/ 0.00</strong></div></section>
+      <div class="sumrow"><span>Total cotizado</span><strong id="sumT">$0</strong></div></section>
     <div class="hero"><h2>Belleza que te hace brillar</h2><p>Crea tus proformas de forma rápida y profesional.</p><button class="btn" data-tab="proforma">Crear proforma</button></div>
     <div class="quick"><button class="q" data-tab="catalogo"><i style="background:#ec407a"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H5zM19 4h-5v14"/></svg></i>Productos</button><button class="q" data-tab="historial"><i style="background:#26b5a0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>Mis proformas</button><button class="q" data-tab="clientes"><i style="background:#8e5bd6"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></i>Clientes</button><button class="q" data-tab="negocio"><i style="background:#f5a623"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></i>Ajustes</button></div>
-    <section class="panel"><h2>Marcas</h2><div class="brands"><button data-brandgo="Ésika">Ésika</button><button data-brandgo="Cyzone">Cyzone</button><button data-brandgo="L'Bel">L'Bel</button><button data-brandgo="Avon">Avon</button><button data-brandgo="Natura">Natura</button><button data-brandgo="Yanbal">Yanbal</button></div></section>
+    <section class="panel"><h2>Marcas</h2><div class="brands"><button data-brandgo="Ésika">Ésika</button><button data-brandgo="Cyzone">Cyzone</button><button data-brandgo="L'Bel">L'Bel</button><button data-brandgo="Avon">Avon</button><button data-brandgo="Natura">Natura</button></div></section>
     <section class="panel"><h2>¿Listo para generar tu proforma?</h2><p class="hint">Agrega productos, elige al cliente y descarga el PDF en pocos pasos.</p><button class="btn primary" data-tab="proforma">Empezar</button></section>
   </section>
   <section class="tabpane" id="tab-proforma" data-step="1" hidden>
@@ -371,7 +371,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           <div class="grid">
             <label class="field"><span>Nombre</span><input type="text" data-bind="draft.client.name" autocomplete="off"></label>
             <label class="field"><span>Celular (WhatsApp)</span><input type="tel" inputmode="tel" data-bind="draft.client.phone" placeholder="987654321"></label>
-            <label class="field"><span>DNI o RUC (opcional)</span><input type="text" inputmode="numeric" data-bind="draft.client.doc"></label>
+            <label class="field"><span>RUT (opcional)</span><input type="text" inputmode="text" data-bind="draft.client.doc"></label>
           </div>
           <label class="field"><span>Dirección o zona de entrega</span><input type="text" data-bind="draft.client.address"></label>
           <div class="row-end"><button class="btn sm" data-act="save-client">Guardar en mis clientes</button></div>
@@ -391,10 +391,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
           <h2>Descuento, envío y notas</h2>
           <div class="grid">
             <label class="field"><span>Descuento general (%)</span><input type="number" min="0" max="100" step="0.5" inputmode="decimal" data-bind="draft.globalDisc" placeholder="0"></label>
-            <label class="field"><span>Envío o delivery (S/)</span><input type="number" min="0" step="0.5" inputmode="decimal" data-bind="draft.shipping" placeholder="0.00"></label>
-            <label class="field"><span>Adelanto recibido (S/)</span><input type="number" min="0" step="0.5" inputmode="decimal" data-bind="draft.deposit" placeholder="0.00"></label>
+            <label class="field"><span>Envío o delivery (CLP)</span><input type="number" min="0" step="1" inputmode="numeric" data-bind="draft.shipping" placeholder="0"></label>
+            <label class="field"><span>Adelanto recibido (CLP)</span><input type="number" min="0" step="1" inputmode="numeric" data-bind="draft.deposit" placeholder="0"></label>
           </div>
-          <label class="check"><input type="checkbox" data-bind="draft.igv"><span>Mostrar el IGV (18%) incluido en el total. Los precios de catálogo ya lo incluyen.</span></label>
+          <label class="check"><input type="checkbox" data-bind="draft.igv"><span>Mostrar el IVA (19%) incluido en el total. Los precios de catálogo ya lo incluyen.</span></label>
           <label class="field"><span>Notas para el cliente</span><textarea data-bind="draft.notes"></textarea></label>
         </section>
       </div>
@@ -416,7 +416,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
       <button class="btn" data-tab="historial">Ver mis proformas</button>
       <button class="btn ghost" data-act="new">Nueva proforma</button></div>
     <div class="actions">
-      <div class="arow"><div class="total-chip"><span>Total a pagar</span><strong id="totalChip">S/ 0.00</strong></div>
+      <div class="arow"><div class="total-chip"><span>Total a pagar</span><strong id="totalChip">$0</strong></div>
         <button class="btn" data-go="back" id="btnBack" hidden>Atrás</button>
         <button class="btn primary" data-go="next" id="btnNext">Siguiente</button></div>
       <div class="btns" hidden><button data-act="save" id="btnSave"></button>
@@ -433,7 +433,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
       <div class="grid">
         <label class="field"><span>Marca</span><input type="text" id="np-brand" list="brands" placeholder="Ésika"></label>
         <label class="field"><span>Página o código</span><input type="text" id="np-code" placeholder="Pág. 24"></label>
-        <label class="field"><span>Precio de catálogo (S/)</span><input type="number" id="np-price" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+        <label class="field"><span>Precio de catálogo (CLP)</span><input type="number" id="np-price" min="0" step="1" inputmode="numeric" placeholder="0"></label>
       </div>
       <label class="field"><span>Producto</span><input type="text" id="np-name" placeholder="Nombre del producto"></label>
       <div class="row-end"><button class="btn primary" data-act="add-product">Agregar producto</button></div>
@@ -453,7 +453,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
       <div class="grid">
         <label class="field"><span>Nombre</span><input type="text" id="nc-name"></label>
         <label class="field"><span>Celular (WhatsApp)</span><input type="tel" id="nc-phone" inputmode="tel"></label>
-        <label class="field"><span>DNI o RUC (opcional)</span><input type="text" id="nc-doc" inputmode="numeric"></label>
+        <label class="field"><span>RUT (opcional)</span><input type="text" id="nc-doc" inputmode="text"></label>
       </div>
       <label class="field"><span>Dirección o zona de entrega</span><input type="text" id="nc-address"></label>
       <div class="row-end"><button class="btn primary" data-act="add-client">Agregar cliente</button></div>
@@ -490,17 +490,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
         <label class="field"><span>Nombre del negocio</span><input type="text" data-bind="seller.business" placeholder="Ej. Belleza con Ana"></label>
         <label class="field"><span>Tu nombre</span><input type="text" data-bind="seller.name"></label>
         <label class="field"><span>Celular</span><input type="tel" inputmode="tel" data-bind="seller.phone"></label>
-        <label class="field"><span>DNI o RUC (opcional)</span><input type="text" inputmode="numeric" data-bind="seller.doc"></label>
+        <label class="field"><span>RUT (opcional)</span><input type="text" inputmode="text" data-bind="seller.doc"></label>
       </div>
       <label class="field"><span>Dirección o zona de atención</span><input type="text" data-bind="seller.address"></label>
-      <label class="field"><span>Datos de pago</span><textarea data-bind="seller.payment" placeholder="Yape / Plin: 987 654 321 a nombre de…&#10;Cuenta de ahorros: …"></textarea></label>
+      <label class="field"><span>Datos de pago</span><textarea data-bind="seller.payment" placeholder="Transferencia: banco, tipo de cuenta, N.° de cuenta, RUT…&#10;Nombre del titular: …"></textarea></label>
     </section>
     <section class="panel">
       <h2>Valores para proformas nuevas</h2>
       <div class="grid">
         <label class="field"><span>Validez por defecto (días)</span><input type="number" min="0" step="1" inputmode="numeric" data-bind="prefs.validDays"></label>
       </div>
-      <label class="check"><input type="checkbox" data-bind="prefs.igv"><span>Mostrar el IGV incluido en las proformas nuevas</span></label>
+      <label class="check"><input type="checkbox" data-bind="prefs.igv"><span>Mostrar el IVA incluido en las proformas nuevas</span></label>
       <label class="field"><span>Notas por defecto</span><textarea data-bind="seller.notes"></textarea></label>
       <p class="hint">Estos valores se aplican a las proformas que crees desde ahora. Las que ya guardaste no cambian.</p>
     </section>
@@ -532,15 +532,15 @@ const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const clone=o=>JSON.parse(JSON.stringify(o));
-const nf=new Intl.NumberFormat('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
-const money=n=>'S/ '+nf.format(n||0);
-const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0;};
-const r2=n=>Math.round((n+Number.EPSILON)*100)/100;
+const nf=new Intl.NumberFormat('es-CL',{maximumFractionDigits:0});
+const money=n=>'$'+nf.format(Math.round(n||0));
+const num=v=>{let s=String(v==null?'':v).trim();if(/^\d{1,3}([.,]\d{3})+$/.test(s))s=s.replace(/[.,]/g,'');else s=s.replace(',','.');const n=parseFloat(s);return isFinite(n)?n:0;};
+const r2=n=>Math.round(n);
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
 const numLabel=n=>'PRO-'+String(n).padStart(4,'0');
 const getPath=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
 const setPath=(o,p,v)=>{const ks=p.split('.');const last=ks.pop();ks.reduce((a,k)=>a[k],o)[last]=v;};
-const BRANDS=['Ésika','Cyzone',"L'Bel",'Avon','Natura','Yanbal','Oriflame'];
+const BRANDS=['Ésika','Cyzone',"L'Bel",'Avon','Natura','Oriflame'];
 
 function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmtDate(s){if(!s)return '';const p=s.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s;}
@@ -562,13 +562,13 @@ function makeSample(){
     seller:{name:'',business:'',phone:'',doc:'',address:'',payment:'',notes:'Precios según el catálogo vigente de la campaña. Los productos se entregan al confirmar el pago.'},
     prefs:{validDays:'7',igv:false},
     products:[
-      P('Ésika','Pág. 24','Labial mate larga duración',24.9),
-      P('Ésika','Pág. 58','Perfume floral 50 ml',79.9),
-      P('Cyzone','Pág. 12','Base fluida acabado natural',32.9),
-      P('Cyzone','Pág. 40','Body splash frutal 200 ml',29.9),
-      P("L'Bel",'Pág. 76','Crema facial hidratante',59.9),
-      P("L'Bel",'Pág. 90','Desodorante roll-on 50 ml',14.9)],
-    clients:[{id:uid(),name:'Rosa Mendoza (ejemplo)',phone:'987654321',address:'Av. Javier Prado 1234, San Isidro',doc:''}],
+      P('Ésika','Pág. 24','Labial mate larga duración',6990),
+      P('Ésika','Pág. 58','Perfume floral 50 ml',19990),
+      P('Cyzone','Pág. 12','Base fluida acabado natural',8490),
+      P('Cyzone','Pág. 40','Body splash frutal 200 ml',7490),
+      P("L'Bel",'Pág. 76','Crema facial hidratante',14990),
+      P("L'Bel",'Pág. 90','Desodorante roll-on 50 ml',3990)],
+    clients:[{id:uid(),name:'Rosa Mendoza (ejemplo)',phone:'912345678',address:'Av. Providencia 1234, Providencia',doc:''}],
     draft:null};
   state=st;
   const d=blankDraft();
@@ -576,7 +576,7 @@ function makeSample(){
   d.client=Object.assign({},st.clients[0]);
   const it=(p,q)=>({id:uid(),pid:p.id,brand:p.brand,code:p.code,name:p.name,qty:String(q),price:String(p.price),disc:''});
   d.items=[it(st.products[0],2),it(st.products[1],1),it(st.products[2],1)];
-  d.shipping='5';
+  d.shipping='2500';
   st.draft=d;
   return st;
 }
@@ -615,7 +615,7 @@ function calc(p){
   const total=r2(subtotal-discount+ship);
   const deposit=Math.min(total,r2(Math.max(0,num(p.deposit))));
   const balance=r2(total-deposit);
-  const igvBase=p.igv?r2(total/1.18):0;
+  const igvBase=p.igv?r2(total/1.19):0;
   const igvAmt=p.igv?r2(total-igvBase):0;
   const savings=r2(gross-subtotal+discount);
   return {lines,subtotal,discount,gd,ship,total,deposit,balance,igvBase,igvAmt,savings};
@@ -695,9 +695,9 @@ function itemRow(it,i){
     '<label class="f f-brand"><span>Marca</span><input type="text" list="brands" data-f="brand" value="'+esc(it.brand)+'"></label>'+
     '<label class="f f-code"><span>Página o código</span><input type="text" data-f="code" value="'+esc(it.code)+'"></label>'+
     '<label class="f f-qty"><span>Cantidad</span><input type="number" min="0" step="1" inputmode="numeric" data-f="qty" value="'+esc(it.qty)+'"></label>'+
-    '<label class="f f-price"><span>Precio (S/)</span><input type="number" min="0" step="0.01" inputmode="decimal" data-f="price" value="'+esc(it.price)+'"></label>'+
+    '<label class="f f-price"><span>Precio (CLP)</span><input type="number" min="0" step="1" inputmode="numeric" data-f="price" value="'+esc(it.price)+'"></label>'+
     '<label class="f f-disc"><span>Descuento %</span><input type="number" min="0" max="100" step="0.5" inputmode="decimal" data-f="disc" value="'+esc(it.disc)+'" placeholder="0"></label>'+
-    '<div class="f f-total"><span>Importe</span><output data-total>S/ 0.00</output></div>'+
+    '<div class="f f-total"><span>Importe</span><output data-total>$0</output></div>'+
   '</div>';
 }
 function renderItems(){
@@ -733,7 +733,7 @@ function renderCatalog(){
       '<label class="f c6"><span>Producto</span><input type="text" data-pf="name" value="'+esc(p.name)+'"></label>'+
       '<label class="f c2"><span>Marca</span><input type="text" list="brands" data-pf="brand" value="'+esc(p.brand)+'"></label>'+
       '<label class="f c2"><span>Página o código</span><input type="text" data-pf="code" value="'+esc(p.code)+'"></label>'+
-      '<label class="f c2"><span>Precio (S/)</span><input type="number" min="0" step="0.01" inputmode="decimal" data-pf="price" value="'+esc(p.price)+'"></label>'+
+      '<label class="f c2"><span>Precio (CLP)</span><input type="number" min="0" step="1" inputmode="numeric" data-pf="price" value="'+esc(p.price)+'"></label>'+
       '<div class="acts"><button class="btn sm primary" data-act="cat-to-proforma">Agregar a la proforma</button><button class="btn sm danger" data-act="del-product">Eliminar</button></div>'+
     '</div>').join(''):
     '<div class="empty-note">'+(state.products.length?'Ningún producto coincide con el filtro.':'Aún no guardaste productos. Agrégalos con el formulario de arriba.')+'</div>';
@@ -745,7 +745,7 @@ function renderClients(){
     '<div class="rowcard" data-id="'+esc(c.id)+'">'+
       '<label class="f c3"><span>Nombre</span><input type="text" data-cf="name" value="'+esc(c.name)+'"></label>'+
       '<label class="f c3"><span>Celular</span><input type="tel" inputmode="tel" data-cf="phone" value="'+esc(c.phone)+'"></label>'+
-      '<label class="f c3"><span>DNI o RUC</span><input type="text" inputmode="numeric" data-cf="doc" value="'+esc(c.doc)+'"></label>'+
+      '<label class="f c3"><span>RUT</span><input type="text" inputmode="text" data-cf="doc" value="'+esc(c.doc)+'"></label>'+
       '<label class="f c3"><span>Dirección o zona</span><input type="text" data-cf="address" value="'+esc(c.address)+'"></label>'+
       '<div class="acts"><button class="btn sm primary" data-act="use-client">Usar en la proforma</button><button class="btn sm danger" data-act="del-client">Eliminar</button></div>'+
     '</div>').join(''):
@@ -767,7 +767,7 @@ function paperHTML(p,c){
   const num_=numLabel(p.number||state.counter);
   const until=addDays(p.date,Math.max(0,parseInt(p.validDays,10)||0));
   const ph=(v,f)=>v?esc(v):'<span class="ph">'+f+'</span>';
-  const contact=[s.name,s.phone,s.doc?'DNI/RUC '+s.doc:''].filter(Boolean).map(esc).join(' · ');
+  const contact=[s.name,s.phone,s.doc?'RUT '+s.doc:''].filter(Boolean).map(esc).join(' · ');
   const BR='<span class="b1">ésika</span><span class="b2">cyzone</span><span class="b3">L\'BEL</span>';
   const BR2=BR+'<span class="b4">AVON</span><span class="b5">natura</span>';
   const rows=p.items.length?p.items.map((it,i)=>{
@@ -779,7 +779,7 @@ function paperHTML(p,c){
   if(c.discount>0)tot+='<div><span>Descuento ('+c.gd+'%)</span><span>-'+money(c.discount)+'</span></div>';
   if(c.ship>0)tot+='<div><span>Envío</span><span>'+money(c.ship)+'</span></div>';
   tot+='<div class="big"><span>Total</span><span>'+money(c.total)+'</span></div>';
-  if(p.igv)tot+='<div class="m"><span>Valor de venta</span><span>'+money(c.igvBase)+'</span></div><div class="m"><span>IGV (18%) incluido</span><span>'+money(c.igvAmt)+'</span></div>';
+  if(p.igv)tot+='<div class="m"><span>Valor neto</span><span>'+money(c.igvBase)+'</span></div><div class="m"><span>IVA (19%) incluido</span><span>'+money(c.igvAmt)+'</span></div>';
   if(c.deposit>0)tot+='<div><span>Adelanto</span><span>-'+money(c.deposit)+'</span></div><div class="bal"><span>Saldo por pagar</span><span>'+money(c.balance)+'</span></div>';
   const cl=p.client;
   return '<div class="q-head"><div class="q-l"><div class="q-title">'+(s.business?esc(s.business):'Tu belleza en una proforma')+'</div><div class="q-brands">'+BR+'</div>'+
@@ -830,7 +830,7 @@ function updateTotals(){
   $('#paper').innerHTML=paperHTML(p,c);
   const wa=$('#waLink');
   let d=String(p.client.phone||'').replace(/\D/g,'');
-  if(d.length===9)d='51'+d;
+  if(d.length===9)d='56'+d;
   if(d.length>=10){wa.hidden=false;wa.href='https://wa.me/'+d+'?text='+encodeURIComponent(waText(p,c));}
   else{wa.hidden=true;wa.removeAttribute('href');}
 }
@@ -905,7 +905,7 @@ function makePdf(p){
   [['ésika',INK],['cyzone',PINK],["L'BEL",INK]].forEach(b=>{doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor.apply(doc,b[1]);doc.text(b[0],bx,by);bx+=doc.getTextWidth(b[0])+16;});
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor.apply(doc,MUTED);
   let ly=by+16;
-  const contact=[s.name,s.phone,s.doc?'DNI/RUC '+s.doc:''].filter(Boolean).join('   |   ');
+  const contact=[s.name,s.phone,s.doc?'RUT '+s.doc:''].filter(Boolean).join('   |   ');
   if(contact){doc.text(doc.splitTextToSize(contact,W-2*M-150),M,ly);ly+=12;}
   if(s.address){doc.text(doc.splitTextToSize(s.address,W-2*M-150),M,ly);ly+=12;}
   const until=addDays(p.date,Math.max(0,parseInt(p.validDays,10)||0));
@@ -919,7 +919,7 @@ function makePdf(p){
   doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor.apply(doc,INK);doc.text('Cliente:',M,y);y+=13;
   doc.setFontSize(11);doc.text(p.client.name||'-',M,y);y+=13;
   doc.setFont('helvetica','normal');doc.setFontSize(9.5);
-  [p.client.doc?'DNI/RUC: '+p.client.doc:'',p.client.phone?'Cel: '+p.client.phone:'',p.client.address?'Dirección: '+p.client.address:''].filter(Boolean).forEach(t=>{doc.text(doc.splitTextToSize(t,W-2*M),M,y);y+=12;});
+  [p.client.doc?'RUT: '+p.client.doc:'',p.client.phone?'Cel: '+p.client.phone:'',p.client.address?'Dirección: '+p.client.address:''].filter(Boolean).forEach(t=>{doc.text(doc.splitTextToSize(t,W-2*M),M,y);y+=12;});
   y+=8;
   doc.autoTable({
     startY:y,margin:{left:M,right:M},theme:'grid',
@@ -941,7 +941,7 @@ function makePdf(p){
   if(c.discount>0)rows.push(['Descuento ('+c.gd+'%)','-'+money(c.discount),0]);
   if(c.ship>0)rows.push(['Envío',money(c.ship),0]);
   rows.push(['TOTAL',money(c.total),2]);
-  if(p.igv){rows.push(['Valor de venta',money(c.igvBase),3]);rows.push(['IGV (18%) incluido',money(c.igvAmt),3]);}
+  if(p.igv){rows.push(['Valor neto',money(c.igvBase),3]);rows.push(['IVA (19%) incluido',money(c.igvAmt),3]);}
   if(c.deposit>0){rows.push(['Adelanto','-'+money(c.deposit),0]);rows.push(['Saldo por pagar',money(c.balance),1]);}
   ensure(rows.length*18+30);
   const X=W-M-200;
@@ -1030,7 +1030,7 @@ async function sharePdf(){
     const f=await pdfFile();if(!f)return;
     if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:f.name});return;}
     saveBlob(f,f.name);
-    let d=String(state.draft.client.phone||'').replace(/\D/g,'');if(d.length===9)d='51'+d;
+    let d=String(state.draft.client.phone||'').replace(/\D/g,'');if(d.length===9)d='56'+d;
     toast('PDF descargado. Adjúntalo en el chat de WhatsApp.');
     if(d.length>=10)window.open('https://wa.me/'+d,'_blank');
   }catch(e){if(e&&e.name==='AbortError')return;toast('No se pudo compartir. Prueba con Descargar PDF.');}
@@ -1198,7 +1198,10 @@ document.addEventListener('click',e=>{
     if(k==='wa'){const w=$('#waLink');if(!w.hidden)window.open(w.href,'_blank');else say('Agrega el celular del cliente para abrir WhatsApp.');}
     return;}
   const b=e.target.closest('[data-brandgo]');
-  if(b){$('.tab[data-tab="catalogo"]').click();$$('.chip[data-brand]').forEach(c=>{if(c.dataset.brand===b.dataset.brandgo)c.click();});return;}
+  if(b){const br=b.dataset.brandgo;$('.tab[data-tab="catalogo"]').click();
+    const f=$$('.chip[data-brand]');const all=f.find(c=>c.dataset.brand==='');if(all)all.click();
+    $$('.chip[data-brand]').forEach(c=>{if(c.dataset.brand===br)c.click();});
+    $('#np-brand').value=br;setTimeout(()=>{window.scrollTo(0,0);$('#np-code').focus();},60);return;}
   const a=e.target.closest('[data-act]'),act=a&&a.dataset.act;
   if(act==='new'||act==='open-hist'||act==='dup-hist')go(1);
   const t=e.target.closest('[data-tab]');if(t&&t.dataset.tab==='proforma'&&step===4)go(1);
@@ -1219,9 +1222,9 @@ function paint(){
   let hs=[];try{hs=JSON.parse(localStorage.getItem('pf-history')||'[]');}catch(x){}
   const d=new Date(),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
   const m=hs.filter(x=>String(x.date).startsWith(k));
-  const mes=d.toLocaleDateString('es-PE',{month:'long',year:'numeric'});$('#sumMonth').textContent=mes.charAt(0).toUpperCase()+mes.slice(1);
+  const mes=d.toLocaleDateString('es-CL',{month:'long',year:'numeric'});$('#sumMonth').textContent=mes.charAt(0).toUpperCase()+mes.slice(1);
   $('#sumN').textContent=m.length;
-  $('#sumT').textContent='S/ '+m.reduce((a,x)=>a+(+x.total||0),0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  $('#sumT').textContent='$'+Math.round(m.reduce((a,x)=>a+(+x.total||0),0)).toLocaleString('es-CL');
 }
 document.addEventListener('click',()=>setTimeout(paint,80));
 document.addEventListener('input',ev=>{if(ev.target.id==='b-seller-name')paint();});
