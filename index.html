@@ -1325,7 +1325,7 @@ const SB_KEY='sb_publishable_fWeTOizSA0Df-l_W71pw7A_H-RxO0T5'; /* clave pública
 const $=s=>document.querySelector(s);
 const LS={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pf=()=>window.__pf;
-let session=null,mode='in',busy=false,pushTimer=0,inflight=null,queued=false,edits=0,cloudState='off',lastOk='',refreshing=null,lastRun=0;
+let session=null,mode='in',busy=false,pushTimer=0,inflight=null,queued=false,edits=0,cloudState='off',lastOk='',lastErr='',refreshing=null,lastRun=0;
 
 /* ---------- Sesión guardada en el dispositivo ---------- */
 function loadSession(){try{const s=JSON.parse(LS.get('pf-auth')||'null');if(s&&s.access_token&&s.refresh_token&&s.user&&s.user.id)return s;}catch(e){}return null;}
@@ -1437,7 +1437,7 @@ async function run(){
   }catch(e){
     if(e&&e.message==='nosession'){setCloud('off');return;}
     setCloud(e&&e.network?'offline':'error');
-    if(!(e&&e.network))console.warn('sync',e);
+    if(!(e&&e.network)){lastErr=syncErrText(e);console.warn('sync',e);paintAcct();}
   }
 }
 function sync(){
@@ -1475,14 +1475,23 @@ function expire(){
 function errText(e){
   if(e&&e.network)return 'No hay conexión. Revisa tu internet e inténtalo otra vez.';
   const c=String(e.code||'').toLowerCase(),t=String(e.message||'').toLowerCase();
+  if(t.indexOf('sending confirmation')>-1||t.indexOf('sending email')>-1||c==='unexpected_failure')return 'Supabase no pudo enviar el correo de confirmación. En Supabase apaga "Confirm email" (Authentication → Sign In / Providers → Email) y vuelve a intentar.';
   if(c==='invalid_credentials'||t.indexOf('invalid login')>-1)return 'Correo o contraseña incorrectos.';
   if(c==='user_already_exists'||t.indexOf('already registered')>-1)return 'Ese correo ya tiene una cuenta. Toca "Entrar".';
   if(c==='weak_password')return 'La contraseña es muy débil. Prueba con una más larga.';
   if(c==='signup_disabled'||t.indexOf('signups not allowed')>-1)return 'El registro de cuentas nuevas está cerrado.';
-  if(c==='email_not_confirmed')return 'Falta confirmar tu correo. Revisa tu bandeja de entrada.';
-  if(c==='over_request_rate_limit'||c==='over_email_send_rate_limit'||e.status===429)return 'Demasiados intentos. Espera un momento y vuelve a probar.';
+  if(c==='email_not_confirmed')return 'Ese correo quedó sin confirmar. En Supabase, abre Authentication → Users, borra ese usuario y créalo de nuevo (con "Confirm email" apagado).';
+  if(c==='over_request_rate_limit'||c==='over_email_send_rate_limit'||e.status===429)return 'Demasiados intentos o límite de correos de Supabase. Espera unos minutos y vuelve a probar.';
   if(c==='validation_failed'||t.indexOf('invalid format')>-1||t.indexOf('unable to validate email')>-1)return 'Revisa el correo: no parece válido.';
-  return 'No se pudo completar ('+(e.status||'error')+'). Inténtalo de nuevo.';
+  if(c==='email_address_invalid')return 'Supabase no aceptó ese correo. Prueba con otro.';
+  return 'No se pudo completar ('+(e.status||'error')+(e.message?': '+String(e.message).slice(0,140):'')+').';
+}
+function syncErrText(e){
+  const c=String(e.code||''),t=String(e.message||'');
+  if(c==='PGRST205'||c==='42P01'||/could not find the table|does not exist/i.test(t))return 'Falta crear la tabla user_data en Supabase (paso 2: SQL Editor).';
+  if(c==='42501'||e.status===403)return 'Supabase rechazó el guardado: revisa las reglas (policies) de la tabla user_data.';
+  if(e.status===401||c==='PGRST301'||c==='PGRST303')return 'La sesión no es válida. Cierra sesión y vuelve a entrar.';
+  return 'Error '+(e.status||'')+(c?' '+c:'')+(t?': '+t.slice(0,140):'');
 }
 async function onSignedIn(r){
   const prev=getSync();
@@ -1528,14 +1537,14 @@ function paintAcct(){
   mail.textContent=session?session.user.email:'—';
   st.textContent=({ok:'Sincronizado'+(lastOk?' · '+lastOk:''),pending:'Sincronizando…',
     offline:'Sin conexión: se sincronizará cuando vuelva el internet.',
-    error:'No se pudo sincronizar. Toca "Sincronizar ahora".',off:'Sin sincronizar'})[cloudState]||'';
+    error:(lastErr||'No se pudo sincronizar.')+' Toca "Sincronizar ahora" para reintentar.',off:'Sin sincronizar'})[cloudState]||'';
 }
 $('#acctSyncBtn').addEventListener('click',async()=>{
   if(!session)return;
   await sync();
   if(cloudState==='ok')pf().toast('Todo sincronizado.');
   else if(cloudState==='offline')pf().toast('Sin conexión. Se sincronizará después.');
-  else if(cloudState==='error')pf().toast('No se pudo sincronizar.');
+  else if(cloudState==='error')pf().toast(lastErr||'No se pudo sincronizar.');
 });
 let outT=0;
 $('#acctOut').addEventListener('click',async()=>{
