@@ -309,6 +309,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .avatar,.pav,.pprev{overflow:hidden}
 .paper{--accent:#c2185b}
 /* ===== Modo oscuro ===== */
+/* ===== Opciones de pago ===== */
+.paycard{border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface-2)}
+.paycard+.paycard{margin-top:2px}
+.paytop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.paytop b{font-size:15px}
+.paygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px}
+.paycard .check{margin:0}
+.p-acc{margin-top:6px;display:flex;flex-direction:column;gap:1px;font-size:13px}
+.p-acc b{font-size:13.5px}
 /* ===== Cuenta: entrar / crear cuenta y panel de sesión ===== */
 #auth{position:fixed;inset:0;z-index:120;overflow-y:auto;background:radial-gradient(120% 70% at 50% 0%,#ffc4de 0%,rgba(255,196,222,0) 60%),linear-gradient(165deg,#f06aa8,#d81b78 52%,#8e0f52);display:flex;flex-direction:column;align-items:center;gap:26px;padding:28px 20px}
 #auth[hidden]{display:none}
@@ -551,7 +560,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
         <label class="field"><span>RUT (opcional)</span><input type="text" inputmode="text" data-bind="seller.doc"></label>
       </div>
       <label class="field"><span>Dirección o zona de atención</span><input type="text" data-bind="seller.address"></label>
-      <label class="field"><span>Datos de pago</span><textarea data-bind="seller.payment" placeholder="Transferencia: banco, tipo de cuenta, N.° de cuenta, RUT…&#10;Nombre del titular: …"></textarea></label>
+    </section>
+    <section class="panel" id="payPanel">
+      <h2>Opciones de pago</h2>
+      <p class="hint">Elige tus bancos y completa los datos. Saldrán en cada proforma, en el PDF y en el mensaje de WhatsApp.</p>
+      <div id="payList"></div>
+      <label class="field"><span>Agregar cuenta</span><select id="payAdd"></select></label>
+      <div class="field"><span>Otras formas de pago</span><div class="chips">
+        <button type="button" class="chip" data-pay-toggle="cash" aria-pressed="false">Efectivo</button>
+        <button type="button" class="chip" data-pay-toggle="card" aria-pressed="false">Tarjeta de débito o crédito</button></div></div>
+      <label class="field"><span>Indicaciones adicionales (opcional)</span><textarea data-bind="seller.payment" placeholder="Ej. Envía el comprobante por WhatsApp.&#10;Pago contra entrega en Providencia."></textarea></label>
     </section>
     <section class="panel">
       <h2>Valores para proformas nuevas</h2>
@@ -618,7 +636,7 @@ function blankDraft(){
 function makeSample(){
   const P=(brand,code,name,price)=>({id:uid(),brand,code,name,price});
   const st={sample:true,counter:1,
-    seller:{name:'',business:'',phone:'',doc:'',address:'',payment:'',notes:'Precios según el catálogo vigente de la campaña. Los productos se entregan al confirmar el pago.'},
+    seller:{name:'',business:'',phone:'',doc:'',address:'',payment:'',pay:{accounts:[],cash:false,card:false},notes:'Precios según el catálogo vigente de la campaña. Los productos se entregan al confirmar el pago.'},
     prefs:{validDays:'7',igv:false},
     products:[
       P('Ésika','Pág. 24','Labial mate larga duración',6990),
@@ -644,6 +662,7 @@ function normalize(raw){
   s.sample=!!raw.sample;
   s.counter=Math.max(1,parseInt(raw.counter,10)||1);
   s.seller=Object.assign({name:'',business:'',phone:'',doc:'',address:'',payment:'',notes:''},raw.seller||{});
+  s.seller.pay=normPay(s.seller.pay);
   s.prefs=Object.assign({validDays:'7',igv:false},raw.prefs||{});
   s.products=Array.isArray(raw.products)?raw.products:[];
   s.clients=Array.isArray(raw.clients)?raw.clients:[];
@@ -656,6 +675,68 @@ function normalize(raw){
   }
   s.draft=d;
   return s;
+}
+
+/* ---------- Opciones de pago ---------- */
+const BANKS=['BancoEstado','Banco de Chile','Banco Santander','BCI','Scotiabank','Banco Itaú','Banco Falabella','Banco Ripley','Banco Security','Banco BICE','Banco Consorcio','Coopeuch','Mercado Pago','Tenpo','Mach','Prepago Los Héroes','Tapp Caja Los Andes','Global66'];
+const OTHER_BANK='__otro';
+const ACC_TYPES=['Cuenta corriente','Cuenta vista','Cuenta RUT','Cuenta de ahorro','Chequera electrónica'];
+function defaultType(bank){
+  if(bank==='BancoEstado')return 'Cuenta RUT';
+  if(['Mercado Pago','Tenpo','Mach','Prepago Los Héroes','Tapp Caja Los Andes','Global66'].indexOf(bank)>-1)return 'Cuenta vista';
+  return 'Cuenta corriente';
+}
+function normPay(raw){
+  const r=raw&&typeof raw==='object'?raw:{};
+  const accounts=(Array.isArray(r.accounts)?r.accounts:[]).filter(a=>a&&typeof a==='object').map(a=>({
+    id:a.id||uid(),bank:String(a.bank||''),custom:String(a.custom||''),type:String(a.type||''),
+    number:String(a.number||''),holder:String(a.holder||''),rut:String(a.rut||''),email:String(a.email||''),show:a.show!==false}));
+  return {accounts:accounts,cash:!!r.cash,card:!!r.card};
+}
+function bankName(a){return a.bank===OTHER_BANK?(a.custom||'').trim():a.bank;}
+function visibleAccounts(s){
+  const pay=s.pay||{accounts:[]};
+  return pay.accounts.filter(a=>a.show!==false&&(bankName(a)||String(a.number).trim()));
+}
+/* Cada cuenta como lista de líneas: [titulo, [detalles]] */
+function payParts(s){
+  const out=visibleAccounts(s).map(a=>{
+    const head=[bankName(a),a.type].filter(Boolean).join(' · ');
+    const d=[];
+    if(String(a.number).trim())d.push('N.° de cuenta: '+String(a.number).trim());
+    if(String(a.holder).trim())d.push('Titular: '+String(a.holder).trim());
+    if(String(a.rut).trim())d.push('RUT: '+String(a.rut).trim());
+    if(String(a.email).trim())d.push('Correo: '+String(a.email).trim());
+    return {head:head||'Transferencia',lines:d};
+  });
+  const extra=[];
+  if(s.pay&&s.pay.cash)extra.push('Efectivo');
+  if(s.pay&&s.pay.card)extra.push('Tarjeta de débito o crédito');
+  return {accounts:out,extra:extra,note:String(s.payment||'').trim()};
+}
+function hasPay(s){const x=payParts(s);return !!(x.accounts.length||x.extra.length||x.note);}
+function payHtml(s){
+  const x=payParts(s);if(!hasPay(s))return '';
+  let h='<div class="p-block"><span class="p-label">Opciones de pago</span>';
+  x.accounts.forEach(a=>{h+='<div class="p-acc"><b>'+esc(a.head)+'</b>'+a.lines.map(l=>'<span>'+esc(l)+'</span>').join('')+'</div>';});
+  if(x.extra.length)h+='<div class="p-acc"><span>También aceptamos: '+esc(x.extra.join(', '))+'</span></div>';
+  if(x.note)h+='<div class="p-acc"><span>'+esc(x.note)+'</span></div>';
+  return h+'</div>';
+}
+function payWa(s){
+  const x=payParts(s);if(!hasPay(s))return [];
+  const L=['','*Opciones de pago:*'];
+  x.accounts.forEach((a,i)=>{if(i)L.push('');L.push('*'+a.head+'*');a.lines.forEach(l=>L.push(l));});
+  if(x.extra.length){if(x.accounts.length)L.push('');L.push('También aceptamos: '+x.extra.join(', '));}
+  if(x.note){if(x.accounts.length||x.extra.length)L.push('');L.push(x.note);}
+  return L;
+}
+function payPlain(s){
+  const x=payParts(s),L=[];
+  x.accounts.forEach((a,i)=>{if(i)L.push('');L.push(a.head);a.lines.forEach(l=>L.push(l));});
+  if(x.extra.length){if(L.length)L.push('');L.push('También aceptamos: '+x.extra.join(', '));}
+  if(x.note){if(L.length)L.push('');L.push(x.note);}
+  return L.join('\n');
 }
 
 /* ---------- Cálculo ---------- */
@@ -733,6 +814,62 @@ function setTab(name){
   if(name==='clientes')renderClients();
   if(name==='historial')renderHistory();
 }
+
+/* ---------- Opciones de pago: pantalla del perfil ---------- */
+function bankOptions(sel,withOther){
+  return BANKS.map(b=>'<option value="'+esc(b)+'"'+(sel===b?' selected':'')+'>'+esc(b)+'</option>').join('')+
+    (withOther?'<option value="'+OTHER_BANK+'"'+(sel===OTHER_BANK?' selected':'')+'>Otro banco…</option>':'');
+}
+function renderPay(){
+  const pay=state.seller.pay;
+  $('#payAdd').innerHTML='<option value="">Elige un banco para agregarlo…</option>'+bankOptions('',true);
+  $('#payList').innerHTML=pay.accounts.map(a=>{
+    const types='<option value="">Tipo de cuenta</option>'+ACC_TYPES.map(t=>'<option'+(a.type===t?' selected':'')+'>'+esc(t)+'</option>').join('');
+    return '<div class="paycard" data-id="'+esc(a.id)+'">'+
+      '<div class="paytop"><b>'+esc(bankName(a)||'Nueva cuenta')+'</b><button type="button" class="btn sm danger" data-pay-del>Quitar</button></div>'+
+      '<div class="paygrid">'+
+        '<label class="field"><span>Banco</span><select data-pk="bank">'+bankOptions(a.bank,true)+'</select></label>'+
+        (a.bank===OTHER_BANK?'<label class="field"><span>Nombre del banco</span><input type="text" data-pk="custom" value="'+esc(a.custom)+'" placeholder="Ej. Banco Estado Mi Pyme"></label>':'')+
+        '<label class="field"><span>Tipo de cuenta</span><select data-pk="type">'+types+'</select></label>'+
+        '<label class="field"><span>N.° de cuenta</span><input type="text" inputmode="numeric" data-pk="number" value="'+esc(a.number)+'"></label>'+
+        '<label class="field"><span>Titular</span><input type="text" data-pk="holder" value="'+esc(a.holder)+'"></label>'+
+        '<label class="field"><span>RUT del titular</span><input type="text" data-pk="rut" value="'+esc(a.rut)+'"></label>'+
+        '<label class="field"><span>Correo</span><input type="email" inputmode="email" autocapitalize="none" data-pk="email" value="'+esc(a.email)+'"></label>'+
+      '</div>'+
+      '<label class="check"><input type="checkbox" data-pk="show"'+(a.show!==false?' checked':'')+'><span>Mostrar en mis proformas</span></label>'+
+    '</div>';
+  }).join('');
+  $$('[data-pay-toggle]').forEach(b=>b.setAttribute('aria-pressed',String(!!pay[b.dataset.payToggle])));
+}
+function payAccount(el){const c=el.closest&&el.closest('#payList .paycard');return c?state.seller.pay.accounts.find(x=>x.id===c.dataset.id):null;}
+$('#payAdd').addEventListener('change',ev=>{
+  const v=ev.target.value;if(!v)return;
+  state.seller.pay.accounts.push({id:uid(),bank:v,custom:'',type:defaultType(v),number:'',holder:state.seller.name||'',rut:state.seller.doc||'',email:'',show:true});
+  renderPay();onDraft();
+  const last=$$('#payList .paycard').pop();if(last){const n=$('[data-pk="number"]',last);if(n)n.focus();}
+  toast('Cuenta agregada. Completa el número y el titular.');
+});
+$('#payList').addEventListener('input',ev=>{
+  const el=ev.target,a=payAccount(el);if(!a||!el.dataset.pk||el.tagName==='SELECT'||el.type==='checkbox')return;
+  a[el.dataset.pk]=el.value;onDraft();
+});
+$('#payList').addEventListener('change',ev=>{
+  const el=ev.target,a=payAccount(el);if(!a||!el.dataset.pk)return;
+  if(el.type==='checkbox'){a.show=el.checked;onDraft();return;}
+  if(el.tagName!=='SELECT')return;
+  a[el.dataset.pk]=el.value;
+  if(el.dataset.pk==='bank'&&el.value!==OTHER_BANK&&!a.type)a.type=defaultType(el.value);
+  renderPay();onDraft();
+});
+$('#payList').addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-pay-del]');if(!b)return;
+  const a=payAccount(b);if(!a)return;
+  armed(b,()=>{state.seller.pay.accounts=state.seller.pay.accounts.filter(x=>x.id!==a.id);renderPay();onDraft();});
+});
+$$('[data-pay-toggle]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.payToggle;state.seller.pay[k]=!state.seller.pay[k];
+  b.setAttribute('aria-pressed',String(state.seller.pay[k]));onDraft();
+}));
 
 /* ---------- Renderizado ---------- */
 function renderBrandList(){
@@ -851,7 +988,7 @@ function paperHTML(p,c){
     '<div class="p-tot">'+tot+'</div>'+
     (c.savings>0.004?'<div class="p-save">Con esta proforma ahorras '+money(c.savings)+'</div>':'')+
     (p.notes?'<div class="p-block"><span class="p-label">Notas</span>'+esc(p.notes)+'</div>':'')+
-    (s.payment?'<div class="p-block"><span class="p-label">Formas de pago</span>'+esc(s.payment)+'</div>':'')+
+    payHtml(s)+
     '<div class="q-thanks">¡Gracias por tu confianza!</div><div class="q-brands foot">'+BR2+'</div>'+
     '<div class="p-foot">Proforma referencial. No es comprobante de pago.</div>'+
     '<svg class="q-wave" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18C80-6 160 40 240 18S360 0 400 14V40H0Z" fill="#f8c9df"/></svg>';
@@ -879,7 +1016,7 @@ function waText(p,c){
   if(c.deposit>0){L.push('Adelanto: -'+money(c.deposit));L.push('*Saldo por pagar: '+money(c.balance)+'*');}
   if(c.savings>0.004)L.push('Ahorras '+money(c.savings)+' con esta proforma.');
   if(p.notes){L.push('');L.push(p.notes);}
-  if(s.payment){L.push('');L.push('Formas de pago:');L.push(s.payment);}
+  payWa(s).forEach(l=>L.push(l));
   return L.join('\n');
 }
 
@@ -896,7 +1033,7 @@ function updateTotals(){
   else{wa.hidden=true;wa.removeAttribute('href');}
 }
 function renderAll(){
-  renderBrandList();syncInputs();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
+  renderBrandList();syncInputs();renderPay();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
   $('#sampleBanner').hidden=!state.sample;
 }
 function onDraft(){updateTotals();touch();}
@@ -1023,7 +1160,7 @@ function makePdf(p){
     doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor.apply(doc,MUTED);doc.text(title.toUpperCase(),M,y);y+=12;
     doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor.apply(doc,INK);doc.text(lines,M,y);y+=lines.length*12+6;
   };
-  block('Notas',p.notes);block('Formas de pago',s.payment);
+  block('Notas',p.notes);block('Opciones de pago',payPlain(s));
   ensure(80);y+=12;
   doc.setFont('times','bolditalic');doc.setFontSize(13);doc.setTextColor.apply(doc,ACC);
   doc.text('¡Gracias por tu confianza!',W/2,y,{align:'center'});y+=16;
