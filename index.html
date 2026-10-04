@@ -186,7 +186,7 @@ textarea{resize:vertical;min-height:72px}
 .p-foot{margin-top:16px;padding-top:10px;border-top:1px solid var(--paper-line);font-size:11px;color:var(--paper-muted)}
 
 #copyFallback textarea{min-height:180px;font-size:13px}
-.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;max-width:calc(100vw - 32px);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;max-width:calc(100vw - 32px);z-index:140;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 
@@ -309,6 +309,47 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .avatar,.pav,.pprev{overflow:hidden}
 .paper{--accent:#c2185b}
 /* ===== Modo oscuro ===== */
+/* ===== Catálogos en PDF y visor ===== */
+.catrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+.catrow.old{opacity:.7}
+.catrow+.catrow{margin-top:2px}
+.catinfo{flex:1 1 170px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.catinfo b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.catinfo span{font-size:12.5px;color:var(--muted)}
+.catbtns{display:flex;gap:8px}
+.sheet{position:fixed;inset:0;z-index:110;background:rgba(20,10,30,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.sheet-box{width:100%;max-width:480px;max-height:92vh;overflow-y:auto;background:var(--surface);color:var(--fg);border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(30,5,25,.35)}
+.sheet-box h3{font-size:17px;font-weight:800}
+.sheet-msg{font-size:13px;min-height:16px;color:var(--muted)}
+.sheet-msg.err{color:var(--danger,#b3261e)}
+#reader{position:fixed;inset:0;z-index:95;background:#17121d;color:#fff;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#reader[hidden]{display:none}
+.rd-top{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.rd-title{flex:1;min-width:0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd-btn{min-width:44px;min-height:44px;border-radius:999px;border:0;background:rgba(255,255,255,.14);color:#fff;font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;flex:none}
+.rd-btn:disabled{opacity:.35;cursor:default}
+.rd-btn.primary{background:var(--grad);flex:1 1 auto}
+.rd-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rd-stage{position:relative;flex:1;min-height:0;overflow:auto;display:flex;padding:8px;-webkit-overflow-scrolling:touch}
+.rd-book{margin:auto;display:flex;gap:2px;flex:none}
+.rd-book canvas{background:#fff;display:block;flex:none;box-shadow:0 8px 28px rgba(0,0,0,.5);border-radius:2px}
+.rd-book.turn-n{animation:rdN .26s ease-out}
+.rd-book.turn-p{animation:rdP .26s ease-out}
+@keyframes rdN{from{opacity:.2;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes rdP{from{opacity:.2;transform:translateX(-26px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rd-book.turn-n,.rd-book.turn-p{animation:none}}
+.rd-load{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;color:#fff;background:rgba(23,18,29,.55);pointer-events:none}
+.rd-load[hidden]{display:none}
+.rd-tray{display:flex;gap:8px;overflow-x:auto;padding:8px 12px 0}
+.rd-tray[hidden]{display:none}
+.rd-chip{flex:none;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;padding:9px 14px;font-size:13px;cursor:pointer;display:inline-flex;gap:8px;align-items:center;max-width:72vw}
+.rd-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rd-chip b{color:#ffd1e6}
+.rd-chip i{font-style:normal;font-weight:800;color:#fff;background:var(--grad);border-radius:999px;width:22px;height:22px;display:grid;place-items:center}
+.rd-bar{display:flex;gap:8px;align-items:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.rd-pg{display:flex;align-items:center;gap:4px;font-weight:700;font-size:14px;flex:none}
+.rd-pg input{width:56px;text-align:center;background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:999px;padding:11px 4px;font-weight:700}
 /* ===== Opciones de pago ===== */
 .paycard{border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface-2)}
 .paycard+.paycard{margin-top:2px}
@@ -485,6 +526,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 
   <!-- MIS PRODUCTOS -->
   <section class="tabpane" id="tab-catalogo" hidden>
+    <section class="panel" id="pdfPanel">
+      <h2>Catálogos en PDF</h2>
+      <p class="hint">Sube el PDF de cada campaña, mira sus páginas como un libro y toca <b>Agregar</b> para llevar un producto a tu proforma. El archivo se guarda solo en este dispositivo y funciona sin internet.</p>
+      <div id="pdfList"></div>
+      <div class="row-end"><button class="btn primary" id="pdfUpload">Subir catálogo (PDF)</button></div>
+      <input type="file" id="pdfFile" accept="application/pdf,.pdf" hidden>
+    </section>
     <section class="panel">
       <h2>Agregar producto</h2>
       <p class="hint">Guarda aquí lo que más vendes, con el precio del catálogo. Después lo agregas a una proforma en un toque.</p>
@@ -593,6 +641,49 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
   </section>
 </div>
 
+<div class="sheet" id="pdfMeta" hidden role="dialog" aria-label="Nuevo catálogo">
+  <div class="sheet-box">
+    <h3>Nuevo catálogo</h3>
+    <p class="hint" id="pmFile"></p>
+    <div class="paygrid">
+      <label class="field"><span>Marca</span><input type="text" id="pmBrand" list="brands" placeholder="Ésika"></label>
+      <label class="field"><span>Campaña</span><input type="text" id="pmCamp" placeholder="C-15"></label>
+    </div>
+    <label class="field"><span>Vigente hasta</span><input type="date" id="pmUntil"></label>
+    <div class="sheet-msg" id="pmMsg" role="status"></div>
+    <div class="row-end"><button class="btn" id="pmCancel">Cancelar</button><button class="btn primary" id="pmOk">Guardar catálogo</button></div>
+  </div>
+</div>
+<div id="reader" hidden role="dialog" aria-label="Catálogo">
+  <div class="rd-top">
+    <button class="rd-btn" id="rdClose" aria-label="Cerrar catálogo"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="rd-title" id="rdTitle"></div>
+    <button class="rd-btn" id="rdCart" aria-label="Ver mi proforma"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/></svg><span id="rdCartN">0</span></button>
+  </div>
+  <div class="rd-stage" id="rdStage"><div class="rd-book" id="rdBook"></div><div class="rd-load" id="rdLoad" hidden>Cargando…</div></div>
+  <div class="rd-tray" id="rdTray" hidden></div>
+  <div class="rd-bar">
+    <button class="rd-btn" id="rdPrev" aria-label="Página anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <label class="rd-pg"><input id="rdPage" type="text" inputmode="numeric" aria-label="Número de página" autocomplete="off"><span>/ <span id="rdTotal">0</span></span></label>
+    <button class="rd-btn" id="rdNext" aria-label="Página siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="rd-btn" id="rdZoom" aria-label="Zoom">1×</button>
+    <button class="rd-btn primary" id="rdAdd">+ Agregar</button>
+  </div>
+  <div class="sheet" id="rdSheet" hidden role="dialog" aria-label="Agregar producto">
+    <div class="sheet-box">
+      <h3>Agregar de la página <span id="rsPg"></span></h3>
+      <label class="field"><span>Producto</span><input type="text" id="rsName" list="rsNames" placeholder="Ej. Labial mate larga duración" autocomplete="off"></label>
+      <datalist id="rsNames"></datalist>
+      <div class="paygrid">
+        <label class="field"><span>Precio de catálogo (CLP)</span><input type="number" id="rsPrice" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+        <label class="field"><span>Cantidad</span><input type="number" id="rsQty" min="1" step="1" inputmode="numeric" value="1"></label>
+        <label class="field"><span>Marca</span><input type="text" id="rsBrand" list="brands"></label>
+        <label class="field"><span>Página o código</span><input type="text" id="rsCode"></label>
+      </div>
+      <div class="row-end"><button class="btn" id="rsCancel">Cancelar</button><button class="btn primary" id="rsOk">Agregar a la proforma</button></div>
+    </div>
+  </div>
+</div>
 <datalist id="brands"></datalist>
 <button class="fab" data-act="new" aria-label="Nueva proforma">+</button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1033,16 +1124,17 @@ function updateTotals(){
   else{wa.hidden=true;wa.removeAttribute('href');}
 }
 function renderAll(){
-  renderBrandList();syncInputs();renderPay();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
+  renderBrandList();syncInputs();renderPay();renderCats();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
   $('#sampleBanner').hidden=!state.sample;
 }
 function onDraft(){updateTotals();touch();}
 
 /* ---------- Acciones ---------- */
-function addItemFromProduct(p){
+function addItemFromProduct(p,q){
+  q=q>0?q:1;
   const ex=state.draft.items.find(i=>i.pid===p.id);
-  if(ex)ex.qty=String(num(ex.qty)+1);
-  else state.draft.items.push({id:uid(),pid:p.id,brand:p.brand,code:p.code,name:p.name,qty:'1',price:String(p.price),disc:''});
+  if(ex)ex.qty=String(num(ex.qty)+q);
+  else state.draft.items.push({id:uid(),pid:p.id,brand:p.brand,code:p.code,name:p.name,qty:String(q),price:String(p.price),disc:''});
   renderItems();onDraft();
   toast('Agregado: '+p.name);
 }
@@ -1348,6 +1440,295 @@ $('#clientSelect').addEventListener('change',ev=>{
   syncInputs();onDraft();
 });
 
+/* ---------- Catálogos en PDF (visor tipo libro) ---------- */
+const CAT_KEY='pf-cats';
+function catsLoad(){try{const a=JSON.parse(localStorage.getItem(CAT_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function catsSave(a){try{localStorage.setItem(CAT_KEY,JSON.stringify(a));}catch(e){}}
+const idb={
+  db:null,
+  open(){
+    if(this.db)return Promise.resolve(this.db);
+    return new Promise((res,rej)=>{
+      let r;try{r=indexedDB.open('pf-files',1);}catch(e){rej(e);return;}
+      r.onupgradeneeded=()=>{r.result.createObjectStore('pdf');};
+      r.onsuccess=()=>{this.db=r.result;res(r.result);};
+      r.onerror=()=>rej(r.error);
+    });
+  },
+  async tx(mode,fn){
+    const db=await this.open();
+    return new Promise((res,rej)=>{
+      const t=db.transaction('pdf',mode);const rq=fn(t.objectStore('pdf'));
+      t.oncomplete=()=>res(rq&&rq.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error);
+    });
+  },
+  put(id,blob){return this.tx('readwrite',s=>s.put(blob,id));},
+  get(id){return this.tx('readonly',s=>s.get(id));},
+  del(id){return this.tx('readwrite',s=>s.delete(id));}
+};
+window.__idb=idb;
+let pdfLib=null;
+function loadPdf(){
+  if(pdfLib)return Promise.resolve(pdfLib);
+  return new Promise((res,rej)=>{
+    const done=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';pdfLib=window.pdfjsLib;res(pdfLib);}catch(e){rej(e);}};
+    if(window.pdfjsLib){done();return;}
+    const s=document.createElement('script');s.src='vendor/pdfjs/pdf.min.js';s.onload=done;s.onerror=()=>rej(new Error('pdfjs'));
+    document.head.appendChild(s);
+  });
+}
+async function openDoc(blob){
+  const lib=await loadPdf();
+  const data=await blob.arrayBuffer();
+  return lib.getDocument({data:data,isEvalSupported:false}).promise;
+}
+function fmtSize(b){return b>=1048576?(b/1048576).toFixed(b>=10485760?0:1)+' MB':Math.max(1,Math.round(b/1024))+' KB';}
+function guessMeta(name){
+  const n=' '+String(name||'').toLowerCase().replace(/[_.\-]+/g,' ')+' ';
+  let brand='';
+  [['esika','Ésika'],['ésika','Ésika'],['cyzone','Cyzone'],['lbel','L\'Bel'],['l bel','L\'Bel'],['avon','Avon'],['natura','Natura'],['oriflame','Oriflame']].some(k=>{if(n.indexOf(k[0])>-1){brand=k[1];return true;}return false;});
+  const m=/\bc\s?(\d{1,2})\b/.exec(n);
+  return {brand:brand,campaign:m?'C-'+Number(m[1]):''};
+}
+function untilInfo(u){
+  if(!u)return {t:'Sin fecha de término',old:false};
+  const d=Math.round((new Date(u+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/86400000);
+  if(d>1)return {t:'Vigente · quedan '+d+' días',old:false};
+  if(d===1)return {t:'Vigente · queda 1 día',old:false};
+  if(d===0)return {t:'Vence hoy',old:false};
+  return {t:'Vencida',old:true};
+}
+function renderCats(){
+  const box=$('#pdfList');if(!box)return;
+  const list=catsLoad();
+  box.innerHTML=list.length?list.map(c=>{
+    const u=untilInfo(c.until);
+    return '<div class="catrow'+(u.old?' old':'')+'" data-cid="'+esc(c.id)+'"><div class="catinfo"><b>'+esc(c.brand)+' · '+esc(c.campaign)+'</b><span>'+esc(u.t)+' · '+c.pages+' páginas · '+fmtSize(c.size||0)+'</span></div>'+
+      '<div class="catbtns"><button class="btn sm primary" data-cat-open>Abrir</button><button class="btn sm danger" data-cat-del>Eliminar</button></div></div>';
+  }).join(''):'<p class="hint">Aún no has subido ningún catálogo.</p>';
+}
+let pendingFile=null;
+function setPm(t,err){const m=$('#pmMsg');m.textContent=t||'';m.classList.toggle('err',!!err);}
+$('#pdfUpload').addEventListener('click',()=>$('#pdfFile').click());
+$('#pdfFile').addEventListener('change',e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){toast('Elige un archivo PDF.');return;}
+  pendingFile=f;const g=guessMeta(f.name);
+  $('#pmFile').textContent=f.name+' · '+fmtSize(f.size);
+  $('#pmBrand').value=g.brand;$('#pmCamp').value=g.campaign;$('#pmUntil').value=addDays(todayStr(),21);
+  setPm('');$('#pdfMeta').hidden=false;
+});
+$('#pmCancel').addEventListener('click',()=>{pendingFile=null;$('#pdfMeta').hidden=true;});
+$('#pmOk').addEventListener('click',async()=>{
+  if(!pendingFile)return;
+  const brand=$('#pmBrand').value.trim(),camp=$('#pmCamp').value.trim();
+  if(!brand){setPm('Escribe o elige la marca.',true);return;}
+  if(!camp){setPm('Escribe la campaña, por ejemplo C-15.',true);return;}
+  const ok=$('#pmOk');ok.disabled=true;setPm('Guardando catálogo…');
+  try{
+    const doc=await openDoc(pendingFile);const pages=doc.numPages;doc.destroy();
+    const id='c'+uid();
+    await idb.put(id,pendingFile);
+    const list=catsLoad();
+    list.unshift({id:id,brand:brand,campaign:camp,until:$('#pmUntil').value,name:pendingFile.name,size:pendingFile.size,pages:pages,added:Date.now(),last:1});
+    catsSave(list);
+    pendingFile=null;$('#pdfMeta').hidden=true;renderCats();
+    toast('Catálogo guardado en este dispositivo.');
+  }catch(e){
+    const nm=String(e&&e.name||'');
+    setPm(nm==='QuotaExceededError'?'No hay espacio en el dispositivo para este archivo.':nm==='PasswordException'?'Ese PDF tiene contraseña y no se puede abrir.':'No se pudo leer ese PDF. Prueba con otro archivo.',true);
+  }
+  ok.disabled=false;
+});
+$('#pdfList').addEventListener('click',ev=>{
+  const row=ev.target.closest('.catrow');if(!row)return;
+  const id=row.dataset.cid;
+  if(ev.target.closest('[data-cat-open]')){openReader(id);return;}
+  const d=ev.target.closest('[data-cat-del]');
+  if(d)armed(d,async()=>{
+    catsSave(catsLoad().filter(c=>c.id!==id));
+    try{await idb.del(id);}catch(e){}
+    renderCats();toast('Catálogo eliminado. Tus productos se conservan.');
+  });
+});
+
+const rd={cat:null,doc:null,n:1,total:0,zoom:1,tok:0,task:null,open:false};
+function isSpread(){return $('#rdStage').clientWidth>=900;}
+function spreadPages(n){
+  if(!isSpread()||n<=1)return [Math.max(1,n)];
+  const l=n%2===0?n:n-1;
+  return l+1<=rd.total?[l,l+1]:[l];
+}
+async function openReader(id){
+  const cat=catsLoad().find(c=>c.id===id);if(!cat)return;
+  $('#reader').hidden=false;document.body.style.overflow='hidden';rd.open=true;
+  $('#rdLoad').hidden=false;$('#rdLoad').textContent='Abriendo catálogo…';
+  $('#rdTitle').textContent=cat.brand+' · '+cat.campaign;
+  $('#rdBook').replaceChildren();
+  try{window.history.pushState({pfReader:1},'');}catch(e){}
+  rd.cat=cat;rd.doc=null;rd.zoom=1;$('#rdZoom').textContent='1×';
+  try{
+    const blob=await idb.get(id);
+    if(!blob)throw new Error('missing');
+    const doc=await openDoc(blob);
+    if(!rd.open||rd.cat!==cat){doc.destroy();return;}
+    rd.doc=doc;
+  }catch(e){
+    closeReader();toast('No se pudo abrir el catálogo. Súbelo de nuevo.');return;
+  }
+  rd.total=rd.doc.numPages;rd.n=Math.min(Math.max(1,cat.last||1),rd.total);
+  $('#rdTotal').textContent=rd.total;
+  rdCart();rdShow(0);
+}
+function doClose(){
+  if(!rd.open)return;
+  rd.open=false;rd.tok++;
+  try{if(rd.task)rd.task.cancel();}catch(e){}
+  if(rd.doc){try{rd.doc.destroy();}catch(e){}rd.doc=null;}
+  $('#rdSheet').hidden=true;$('#reader').hidden=true;$('#rdBook').replaceChildren();
+  document.body.style.overflow='';
+}
+function closeReader(){
+  if(window.history.state&&window.history.state.pfReader){window.history.back();}
+  doClose();
+}
+window.addEventListener('popstate',()=>{if(rd.open)doClose();});
+function rdCart(){$('#rdCartN').textContent=state.draft.items.length;}
+async function rdShow(dir){
+  if(!rd.doc)return;
+  const tok=++rd.tok;
+  const pages=spreadPages(rd.n);rd.n=pages[0];
+  $('#rdPage').value=pages.length>1?pages[0]+'-'+pages[1]:String(pages[0]);
+  $('#rdPrev').disabled=pages[0]<=1;$('#rdNext').disabled=pages[pages.length-1]>=rd.total;
+  const list=catsLoad(),me=list.find(c=>c.id===rd.cat.id);if(me&&me.last!==rd.n){me.last=rd.n;catsSave(list);}
+  rdTray(pages);
+  const st=$('#rdStage'),book=$('#rdBook');
+  const load=$('#rdLoad');load.textContent='Cargando…';
+  const timer=setTimeout(()=>{if(tok===rd.tok)load.hidden=false;},180);
+  try{
+    if(rd.task){try{rd.task.cancel();}catch(e){}}
+    const pgs=[];
+    for(const num_ of pages){pgs.push(await rd.doc.getPage(num_));if(tok!==rd.tok)return;}
+    const vps=pgs.map(pg=>pg.getViewport({scale:1}));
+    const sumW=vps.reduce((a,v)=>a+v.width,0)+(vps.length-1)*2,maxH=Math.max.apply(null,vps.map(v=>v.height));
+    const W=st.clientWidth-16,H=st.clientHeight-16;
+    const base=Math.min(W/sumW,H/maxH);
+    let dpr=Math.min(window.devicePixelRatio||1,2.5);
+    const cap=16e6;
+    const px=vps.reduce((a,v)=>a+v.width*v.height,0)*Math.pow(base*rd.zoom*dpr,2);
+    if(px>cap)dpr*=Math.sqrt(cap/px);
+    const cvs=[];
+    for(let i=0;i<pgs.length;i++){
+      const css=base*rd.zoom,vp=pgs[i].getViewport({scale:css*dpr});
+      const c=document.createElement('canvas');
+      c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);
+      c.style.width=Math.floor(vps[i].width*css)+'px';c.style.height=Math.floor(vps[i].height*css)+'px';
+      const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+      rd.task=pgs[i].render({canvasContext:ctx,viewport:vp});
+      await rd.task.promise;
+      if(tok!==rd.tok)return;
+      cvs.push(c);
+    }
+    book.replaceChildren.apply(book,cvs);
+    book.classList.remove('turn-n','turn-p');
+    if(dir){void book.offsetWidth;book.classList.add(dir>0?'turn-n':'turn-p');}
+    st.scrollTo(0,0);
+  }catch(e){
+    if(!(e&&e.name==='RenderingCancelledException')&&tok===rd.tok)toast('No se pudo mostrar esa página.');
+  }finally{clearTimeout(timer);if(tok===rd.tok)load.hidden=true;}
+}
+function rdGo(delta){
+  if(!rd.doc)return;
+  const cur=spreadPages(rd.n);
+  const t=delta>0?cur[cur.length-1]+1:cur[0]-1;
+  if(t<1||t>rd.total)return;
+  rd.n=t;rdShow(delta);
+}
+function rdJump(){
+  if(!rd.doc)return;
+  const v=parseInt(String($('#rdPage').value).replace(/\D.*$/,''),10);
+  if(!v||v<1||v>rd.total){rdShow(0);return;}
+  const dir=v>rd.n?1:(v<rd.n?-1:0);rd.n=v;rdShow(dir);
+}
+function rdTray(pages){
+  const box=$('#rdTray');
+  const items=state.products.filter(p=>p.cat===rd.cat.id&&pages.indexOf(Number(p.page))>-1);
+  box.hidden=!items.length;
+  box.innerHTML=items.map(p=>'<button class="rd-chip" data-pid="'+esc(p.id)+'" aria-label="Agregar '+esc(p.name)+'"><span>'+esc(p.name)+'</span><b>'+money(p.price)+'</b><i>+</i></button>').join('');
+}
+$('#rdTray').addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-pid]');if(!b)return;
+  const p=state.products.find(x=>x.id===b.dataset.pid);if(!p)return;
+  addItemFromProduct(p,1);rdCart();
+  try{if(navigator.vibrate)navigator.vibrate(12);}catch(e){}
+});
+$('#rdClose').addEventListener('click',closeReader);
+$('#rdPrev').addEventListener('click',()=>rdGo(-1));
+$('#rdNext').addEventListener('click',()=>rdGo(1));
+$('#rdPage').addEventListener('change',rdJump);
+$('#rdPage').addEventListener('focus',e=>e.target.select());
+$('#rdZoom').addEventListener('click',()=>{
+  rd.zoom=rd.zoom>=3?1:rd.zoom+1;$('#rdZoom').textContent=rd.zoom+'×';rdShow(0);
+});
+$('#rdCart').addEventListener('click',()=>{
+  closeReader();
+  const t=$$('[data-tab="proforma"]')[0];if(t)t.click();
+  setTimeout(()=>{if(window.__go)window.__go(2);},0);
+});
+(function(){
+  const st=$('#rdStage');let sx=0,sy=0,tt=0,lastTap=0;
+  st.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;tt=Date.now();},{passive:true});
+  st.addEventListener('touchend',e=>{
+    if(!e.changedTouches.length||e.touches.length)return;
+    const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(rd.zoom===1&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6&&Date.now()-tt<700){rdGo(dx<0?1:-1);return;}
+    if(Math.abs(dx)<10&&Math.abs(dy)<10){
+      const now=Date.now();
+      if(now-lastTap<320){rd.zoom=rd.zoom>1?1:2;$('#rdZoom').textContent=rd.zoom+'×';rdShow(0);lastTap=0;}else lastTap=now;
+    }
+  },{passive:true});
+})();
+document.addEventListener('keydown',ev=>{
+  if(!rd.open)return;
+  if(ev.key==='Escape'){if(!$('#rdSheet').hidden)$('#rdSheet').hidden=true;else closeReader();return;}
+  if(!$('#rdSheet').hidden||ev.target.tagName==='INPUT')return;
+  if(ev.key==='ArrowRight')rdGo(1);else if(ev.key==='ArrowLeft')rdGo(-1);
+});
+let rzT=0;
+window.addEventListener('resize',()=>{if(!rd.open||!rd.doc)return;clearTimeout(rzT);rzT=setTimeout(()=>rdShow(0),200);});
+
+/* Hoja "Agregar" */
+$('#rdAdd').addEventListener('click',()=>{
+  if(!rd.doc)return;
+  $('#rsPg').textContent=rd.n;
+  $('#rsName').value='';$('#rsPrice').value='';$('#rsQty').value='1';
+  $('#rsBrand').value=rd.cat.brand;$('#rsCode').value='Pág. '+rd.n;
+  const names=new Set();state.products.forEach(p=>{if(p.cat===rd.cat.id&&p.name)names.add(p.name);});
+  $('#rsNames').innerHTML=Array.from(names).map(n=>'<option value="'+esc(n)+'"></option>').join('');
+  $('#rdSheet').hidden=false;
+  setTimeout(()=>$('#rsName').focus(),50);
+});
+$('#rsName').addEventListener('change',()=>{
+  const v=$('#rsName').value.trim().toLowerCase();if(!v||$('#rsPrice').value)return;
+  const p=state.products.find(x=>x.cat===rd.cat.id&&String(x.name).toLowerCase()===v);
+  if(p){$('#rsPrice').value=p.price;if(p.page)$('#rsCode').value=p.code||('Pág. '+p.page);}
+});
+$('#rsCancel').addEventListener('click',()=>{$('#rdSheet').hidden=true;});
+$('#rsOk').addEventListener('click',()=>{
+  const name=$('#rsName').value.trim();
+  if(!name){toast('Escribe el nombre del producto.');$('#rsName').focus();return;}
+  const price=num($('#rsPrice').value),qty=Math.max(1,Math.floor(num($('#rsQty').value))||1);
+  const brand=$('#rsBrand').value.trim(),code=$('#rsCode').value.trim();
+  const m=/\d+/.exec(code),page=m?Number(m[0]):rd.n;
+  let p=state.products.find(x=>x.cat===rd.cat.id&&Number(x.page)===page&&String(x.name).toLowerCase()===name.toLowerCase());
+  if(p){if(price)p.price=price;p.brand=brand;p.code=code;}
+  else{p={id:uid(),brand:brand,code:code,name:name,price:price,cat:rd.cat.id,campaign:rd.cat.campaign,page:page};state.products.unshift(p);}
+  renderBrandList();renderCatalog();
+  if(!state.draft.campaign&&rd.cat.campaign){state.draft.campaign=rd.cat.campaign;syncInputs();}
+  addItemFromProduct(p,qty);
+  $('#rdSheet').hidden=true;rdCart();rdTray(spreadPages(rd.n));
+});
+
 /* ---------- Arranque ---------- */
 $$('[data-bind]').forEach(el=>{if(!el.id)el.id='b-'+el.dataset.bind.replace(/\./g,'-');});
 makeSample();
@@ -1374,6 +1755,7 @@ window.__pf={
     document.dispatchEvent(new Event('pf-applied'));
   },
   setCloud:function(c){cloud=c;if(ready)setStatus('saved');},
+  wipeFiles:function(){try{if(window.__idb&&window.__idb.db){window.__idb.db.close();window.__idb.db=null;}indexedDB.deleteDatabase('pf-files');}catch(e){}},
   toast:function(m){toast(m);}
 };
 (function boot(){
@@ -1405,6 +1787,7 @@ function say(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearT
 function go(n){step=n;P.dataset.step=n;$$('#steps span').forEach(s=>s.classList.toggle('on',+s.dataset.s===n));
   $('#btnBack').hidden=n===1;$('#btnNext').textContent=n===3?'Generar proforma':'Siguiente';window.scrollTo(0,0);}
 window.__saved=()=>go(4);
+window.__go=go;
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');
   if(g){const k=g.dataset.go;
@@ -1491,7 +1874,7 @@ function saveSession(r){
 }
 function getSync(){try{return JSON.parse(LS.get('pf-sync')||'null')||{};}catch(e){return {};}}
 function setSync(o){LS.set('pf-sync',JSON.stringify(o));}
-function wipeLocal(){['pf-state','pf-history','pf-photo','pf-sync','pf-auth'].forEach(LS.del);}
+function wipeLocal(){['pf-state','pf-history','pf-photo','pf-sync','pf-auth','pf-cats'].forEach(LS.del);try{if(pf()&&pf().wipeFiles)pf().wipeFiles();}catch(e){}}
 
 /* ---------- Llamadas a Supabase (sin librerías externas) ---------- */
 async function http(path,o){
