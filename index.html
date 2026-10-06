@@ -316,6 +316,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .catinfo{flex:1 1 170px;min-width:0;display:flex;flex-direction:column;gap:2px}
 .catinfo b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .catinfo span{font-size:12.5px;color:var(--muted)}
+.catinfo .catst.err{color:var(--danger,#b3261e)}
+.catinfo .catst.ok{color:var(--accent)}
 .catbtns{display:flex;gap:8px}
 .sheet{position:fixed;inset:0;z-index:110;background:rgba(20,10,30,.55);display:flex;align-items:flex-end;justify-content:center}
 .sheet[hidden]{display:none}
@@ -546,7 +548,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
   <section class="tabpane" id="tab-catalogo" hidden>
     <section class="panel" id="pdfPanel">
       <h2>Catálogos en PDF</h2>
-      <p class="hint">Sube el PDF de cada campaña, mira sus páginas como un libro y toca <b>Agregar</b> para llevar un producto a tu proforma. El archivo se guarda solo en este dispositivo y funciona sin internet.</p>
+      <p class="hint">Sube el PDF de cada campaña, mira sus páginas como un libro y toca <b>Agregar</b> para llevar un producto a tu proforma. Se guardan en tu cuenta para verlos en todos tus dispositivos, y quedan descargados para usarlos sin internet.</p>
       <div id="pdfList"></div>
       <div class="row-end"><button class="btn primary" id="pdfUpload">Subir catálogo (PDF)</button></div>
       <input type="file" id="pdfFile" accept="application/pdf,.pdf" hidden>
@@ -1466,6 +1468,12 @@ $('#clientSelect').addEventListener('change',ev=>{
 const CAT_KEY='pf-cats';
 function catsLoad(){try{const a=JSON.parse(localStorage.getItem(CAT_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
 function catsSave(a){try{localStorage.setItem(CAT_KEY,JSON.stringify(a));}catch(e){}}
+const DEL_KEY='pf-cats-del',RM_KEY='pf-cats-rm';
+function lsList(k){try{const a=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function lsSet(k,a){try{localStorage.setItem(k,JSON.stringify(a));}catch(e){}}
+let localIds=new Set();
+const fileState={},failedUp={};
+function cloudOn(){const p=window.__pf;return !!(p&&p.files&&p.files.enabled());}
 const idb={
   db:null,
   open(){
@@ -1486,7 +1494,8 @@ const idb={
   },
   put(id,blob){return this.tx('readwrite',s=>s.put(blob,id));},
   get(id){return this.tx('readonly',s=>s.get(id));},
-  del(id){return this.tx('readwrite',s=>s.delete(id));}
+  del(id){return this.tx('readwrite',s=>s.delete(id));},
+  keys(){return this.tx('readonly',s=>s.getAllKeys());}
 };
 window.__idb=idb;
 let pdfLib=null;
@@ -1520,15 +1529,33 @@ function untilInfo(u){
   if(d===0)return {t:'Vence hoy',old:false};
   return {t:'Vencida',old:true};
 }
+function catStatus(c){
+  const fs=fileState[c.id];
+  if(fs&&fs.st==='up')return {t:'Subiendo a tu cuenta… '+fs.pct+'%',k:''};
+  if(fs&&fs.st==='dl')return {t:'Descargando… '+fs.pct+'%',k:''};
+  if(fs&&fs.st==='err')return {t:fs.msg,k:'err'};
+  const loc=localIds.has(c.id);
+  if(c.cloud)return loc?{t:'Guardado en tu cuenta y en este dispositivo',k:'ok'}:{t:'En tu cuenta · se descarga al abrirlo',k:''};
+  return {t:cloudOn()?'En este dispositivo · pendiente de subir a tu cuenta':'Solo en este dispositivo',k:''};
+}
+function paintCat(id){
+  const el=$('#pdfList [data-cid="'+id+'"] .catst'),c=catsLoad().find(x=>x.id===id);
+  if(!el||!c)return;const s=catStatus(c);el.textContent=s.t;el.className='catst'+(s.k?' '+s.k:'');
+}
 function renderCats(){
   const box=$('#pdfList');if(!box)return;
   const list=catsLoad();
   box.innerHTML=list.length?list.map(c=>{
-    const u=untilInfo(c.until);
-    return '<div class="catrow'+(u.old?' old':'')+'" data-cid="'+esc(c.id)+'"><div class="catinfo"><b>'+esc(c.brand)+' · '+esc(c.campaign)+'</b><span>'+esc(u.t)+' · '+c.pages+' páginas · '+fmtSize(c.size||0)+'</span></div>'+
-      '<div class="catbtns"><button class="btn sm primary" data-cat-open>Abrir</button><button class="btn sm danger" data-cat-del>Eliminar</button></div></div>';
+    const u=untilInfo(c.until),s=catStatus(c),fs=fileState[c.id],loc=localIds.has(c.id);
+    let btns='<button class="btn sm primary" data-cat-open>Abrir</button>';
+    if(c.cloud&&!loc&&!(fs&&fs.st==='dl'))btns+='<button class="btn sm" data-cat-dl>Descargar</button>';
+    if(fs&&fs.st==='err'&&loc)btns+='<button class="btn sm" data-cat-retry>Reintentar</button>';
+    btns+='<button class="btn sm danger" data-cat-del>Eliminar</button>';
+    return '<div class="catrow'+(u.old?' old':'')+'" data-cid="'+esc(c.id)+'"><div class="catinfo"><b>'+esc(c.brand)+' · '+esc(c.campaign)+'</b><span>'+esc(u.t)+' · '+c.pages+' páginas · '+fmtSize(c.size||0)+'</span><span class="catst'+(s.k?' '+s.k:'')+'">'+esc(s.t)+'</span></div>'+
+      '<div class="catbtns">'+btns+'</div></div>';
   }).join(''):'<p class="hint">Aún no has subido ningún catálogo.</p>';
 }
+async function loadLocalIds(){try{localIds=new Set(await idb.keys());}catch(e){}renderCats();}
 let pendingFile=null;
 function setPm(t,err){const m=$('#pmMsg');m.textContent=t||'';m.classList.toggle('err',!!err);}
 $('#pdfUpload').addEventListener('click',()=>$('#pdfFile').click());
@@ -1538,7 +1565,7 @@ $('#pdfFile').addEventListener('change',e=>{
   pendingFile=f;const g=guessMeta(f.name);
   $('#pmFile').textContent=f.name+' · '+fmtSize(f.size);
   $('#pmBrand').value=g.brand;$('#pmCamp').value=g.campaign;$('#pmUntil').value=addDays(todayStr(),21);
-  setPm('');$('#pdfMeta').hidden=false;
+  setPm(f.size>52428800?'Este PDF pesa más de 50 MB. Puede que no se suba a tu cuenta (límite del plan gratis de Supabase); se quedaría solo en este dispositivo.':'');$('#pdfMeta').hidden=false;
 });
 $('#pmCancel').addEventListener('click',()=>{pendingFile=null;$('#pdfMeta').hidden=true;});
 $('#pmOk').addEventListener('click',async()=>{
@@ -1552,10 +1579,10 @@ $('#pmOk').addEventListener('click',async()=>{
     const id='c'+uid();
     await idb.put(id,pendingFile);
     const list=catsLoad();
-    list.unshift({id:id,brand:brand,campaign:camp,until:$('#pmUntil').value,name:pendingFile.name,size:pendingFile.size,pages:pages,added:Date.now(),last:1});
-    catsSave(list);
+    list.unshift({id:id,brand:brand,campaign:camp,until:$('#pmUntil').value,name:pendingFile.name,size:pendingFile.size,pages:pages,added:Date.now(),last:1,cloud:false});
+    catsSave(list);localIds.add(id);
     pendingFile=null;$('#pdfMeta').hidden=true;renderCats();
-    toast('Catálogo guardado en este dispositivo.');
+    if(cloudOn()){toast('Catálogo guardado. Subiéndolo a tu cuenta…');syncFiles();}else toast('Catálogo guardado en este dispositivo.');
   }catch(e){
     const nm=String(e&&e.name||'');
     setPm(nm==='QuotaExceededError'?'No hay espacio en el dispositivo para este archivo.':nm==='PasswordException'?'Ese PDF tiene contraseña y no se puede abrir.':'No se pudo leer ese PDF. Prueba con otro archivo.',true);
@@ -1566,13 +1593,86 @@ $('#pdfList').addEventListener('click',ev=>{
   const row=ev.target.closest('.catrow');if(!row)return;
   const id=row.dataset.cid;
   if(ev.target.closest('[data-cat-open]')){openReader(id);return;}
+  if(ev.target.closest('[data-cat-dl]')){
+    const c=catsLoad().find(x=>x.id===id);if(!c)return;
+    fetchCatalog(c).then(()=>toast('Catálogo descargado. Ya funciona sin internet.')).catch(e=>toast((e&&e.dl)||'No se pudo descargar el catálogo.'));
+    return;
+  }
+  if(ev.target.closest('[data-cat-retry]')){syncFiles(true);return;}
   const d=ev.target.closest('[data-cat-del]');
   if(d)armed(d,async()=>{
+    const cat=catsLoad().find(c=>c.id===id);
     catsSave(catsLoad().filter(c=>c.id!==id));
     try{await idb.del(id);}catch(e){}
-    renderCats();toast('Catálogo eliminado. Tus productos se conservan.');
+    localIds.delete(id);delete fileState[id];delete failedUp[id];
+    const inCloud=!!(cat&&cat.cloud);
+    if(inCloud){lsSet(DEL_KEY,lsList(DEL_KEY).concat([id]));lsSet(RM_KEY,lsList(RM_KEY).concat([id]));persisted();syncFiles();}
+    renderCats();toast(inCloud?'Catálogo eliminado de este dispositivo y de tu cuenta. Tus productos se conservan.':'Catálogo eliminado. Tus productos se conservan.');
   });
 });
+
+/* ---------- Catálogos en la cuenta: subir, descargar, borrar ---------- */
+function upErrText(e){
+  const t=String((e&&e.message)||''),s=e&&e.status;
+  if(s===413||/maximum allowed size|exceeded|too large|payload/i.test(t))return 'Pesa más que el límite de tu plan en Supabase (50 MB en el plan gratis). Se queda solo en este dispositivo.';
+  if(s===404||/bucket not found/i.test(t))return 'Falta activar el almacenamiento de catálogos en Supabase (el SQL de catálogos).';
+  if(s===401||s===403||/row-level security|unauthorized|not authorized/i.test(t))return 'Supabase rechazó la subida: revisa las reglas (policies) del almacenamiento de catálogos.';
+  return 'No se pudo subir a tu cuenta ('+(s||'error')+'). Toca Reintentar.';
+}
+function dlErrText(e){
+  if(e&&e.network)return 'Sin conexión. Conéctate a internet para descargar este catálogo.';
+  if(e&&(e.status===404||/not found/i.test(String(e.message||''))))return 'Ese archivo ya no está en tu cuenta.';
+  return 'No se pudo descargar el catálogo.';
+}
+async function fetchCatalog(c){
+  const F=window.__pf&&window.__pf.files;
+  if(!F||!F.enabled()){const er=new Error('nosession');er.dl='Entra a tu cuenta para descargar este catálogo.';throw er;}
+  fileState[c.id]={st:'dl',pct:0};renderCats();
+  try{
+    const blob=await F.download(c.id,pct=>{
+      const f=fileState[c.id];if(f)f.pct=pct;paintCat(c.id);
+      if(rd.open&&rd.cat&&rd.cat.id===c.id)$('#rdLoad').textContent='Descargando catálogo… '+pct+'%';
+    });
+    await idb.put(c.id,blob);localIds.add(c.id);
+    return blob;
+  }catch(e){e.dl=dlErrText(e);throw e;}
+  finally{delete fileState[c.id];renderCats();}
+}
+let filesP=null,filesAgain=false;
+function syncFiles(force){
+  const F=window.__pf&&window.__pf.files;
+  if(!F||!F.enabled())return Promise.resolve();
+  if(force)Object.keys(failedUp).forEach(k=>{delete failedUp[k];if(fileState[k]&&fileState[k].st==='err')delete fileState[k];});
+  if(filesP){filesAgain=true;return filesP;}
+  filesP=(async()=>{do{filesAgain=false;await filesPass(F);}while(filesAgain);})().finally(()=>{filesP=null;});
+  return filesP;
+}
+async function filesPass(F){
+  try{
+    for(const id of lsList(RM_KEY)){
+      try{await F.remove(id);lsSet(RM_KEY,lsList(RM_KEY).filter(x=>x!==id));}
+      catch(e){if(e&&e.network)throw e;}
+    }
+    for(const c of catsLoad().filter(x=>!x.cloud)){
+      if(failedUp[c.id])continue;
+      let blob=null;try{blob=await idb.get(c.id);}catch(e){}
+      if(!blob)continue;
+      fileState[c.id]={st:'up',pct:0};renderCats();
+      try{
+        await F.upload(c.id,blob,pct=>{const f=fileState[c.id];if(f){f.pct=pct;paintCat(c.id);}});
+        const cur=catsLoad(),m=cur.find(x=>x.id===c.id);
+        if(m){m.cloud=true;catsSave(cur);delete fileState[c.id];persisted();}
+        else{delete fileState[c.id];try{await F.remove(c.id);}catch(e){}}
+      }catch(e){
+        if(e&&e.network){delete fileState[c.id];renderCats();throw e;}
+        failedUp[c.id]=true;fileState[c.id]={st:'err',msg:upErrText(e)};
+      }
+      renderCats();
+    }
+  }catch(e){/* sin conexión: se reintenta en la próxima sincronización */}
+}
+function pendingFiles(){return catsLoad().filter(c=>!c.cloud).length+lsList(RM_KEY).length;}
+loadLocalIds();
 
 const rd={cat:null,doc:null,n:1,total:0,zoom:1,tok:0,task:null,open:false,mode:null,pgs:[],text:{},sel:null,hasText:false,sug:null};
 function isSpread(){return $('#rdStage').clientWidth>=900;}
@@ -1590,13 +1690,17 @@ async function openReader(id){
   try{window.history.pushState({pfReader:1},'');}catch(e){}
   rd.cat=cat;rd.doc=null;rd.zoom=1;$('#rdZoom').textContent='1×';rd.text={};rd.mode=null;rd.sel=null;rd.sug=null;$('#rdHint').hidden=true;$('#rdStage').classList.remove('pick');
   try{
-    const blob=await idb.get(id);
+    let blob=await idb.get(id);
+    if(!blob&&cat.cloud){
+      $('#rdLoad').textContent='Descargando catálogo… 0%';
+      blob=await fetchCatalog(cat);
+    }
     if(!blob)throw new Error('missing');
     const doc=await openDoc(blob);
     if(!rd.open||rd.cat!==cat){doc.destroy();return;}
     rd.doc=doc;
   }catch(e){
-    closeReader();toast('No se pudo abrir el catálogo. Súbelo de nuevo.');return;
+    closeReader();toast((e&&e.dl)||'No se pudo abrir el catálogo. Súbelo de nuevo.');return;
   }
   rd.total=rd.doc.numPages;rd.n=Math.min(Math.max(1,cat.last||1),rd.total);
   $('#rdTotal').textContent=rd.total;
@@ -1976,7 +2080,14 @@ $('#importFile').addEventListener('change',e=>{const f=e.target.files[0];if(f)im
 /* ---------- Puente con la cuenta en la nube (lo usa el segundo script de sesión y sincronización) ---------- */
 window.__pf={
   changed:null,
-  snapshot:function(){let photo='';try{photo=localStorage.getItem('pf-photo')||'';}catch(e){}return {state:clone(state),history:clone(history),photo:photo};},
+  snapshot:function(){
+    let photo='';try{photo=localStorage.getItem('pf-photo')||'';}catch(e){}
+    const cats=catsLoad().filter(c=>c.cloud).map(c=>{const o=Object.assign({},c);delete o.last;return o;});
+    return {state:clone(state),history:clone(history),photo:photo,cats:cats,catsDel:lsList(DEL_KEY)};
+  },
+  files:null,
+  syncFiles:function(force){return syncFiles(force);},
+  pendingFiles:function(){return pendingFiles();},
   hasData:function(){return !state.sample&&!!(history.length||state.products.length||state.clients.length||state.seller.name||state.seller.business);},
   apply:function(d){
     normalize(clone(d.state));
@@ -1986,7 +2097,24 @@ window.__pf={
       localStorage.setItem('pf-history',JSON.stringify(history));
       if(d.photo)localStorage.setItem('pf-photo',d.photo);else localStorage.removeItem('pf-photo');
     }catch(e){}
+    let heal=false;
+    if(Array.isArray(d.catsDel))lsSet(DEL_KEY,Array.from(new Set(lsList(DEL_KEY).concat(d.catsDel))));
+    if(Array.isArray(d.cats)){
+      const del=new Set(lsList(DEL_KEY)),local=catsLoad(),byId={},keep=new Set(),out=[];
+      local.forEach(c=>{byId[c.id]=c;});
+      d.cats.forEach(c=>{
+        if(!c||!c.id||del.has(c.id))return;
+        out.push(Object.assign({},c,{cloud:true,last:byId[c.id]?byId[c.id].last:1}));keep.add(c.id);
+      });
+      local.forEach(c=>{
+        if(del.has(c.id)){idb.del(c.id).catch(()=>{});localIds.delete(c.id);return;}
+        if(!keep.has(c.id)){out.push(c);if(c.cloud)heal=true;}
+      });
+      out.sort((a,b)=>(b.added||0)-(a.added||0));
+      catsSave(out);
+    }
     renderAll();
+    if(heal)setTimeout(persisted,0);
     document.dispatchEvent(new Event('pf-applied'));
   },
   setCloud:function(c){cloud=c;if(ready)setStatus('saved');},
@@ -2109,7 +2237,7 @@ function saveSession(r){
 }
 function getSync(){try{return JSON.parse(LS.get('pf-sync')||'null')||{};}catch(e){return {};}}
 function setSync(o){LS.set('pf-sync',JSON.stringify(o));}
-function wipeLocal(){['pf-state','pf-history','pf-photo','pf-sync','pf-auth','pf-cats'].forEach(LS.del);try{if(pf()&&pf().wipeFiles)pf().wipeFiles();}catch(e){}}
+function wipeLocal(){['pf-state','pf-history','pf-photo','pf-sync','pf-auth','pf-cats','pf-cats-del','pf-cats-rm'].forEach(LS.del);try{if(pf()&&pf().wipeFiles)pf().wipeFiles();}catch(e){}}
 
 /* ---------- Llamadas a Supabase (sin librerías externas) ---------- */
 async function http(path,o){
@@ -2153,8 +2281,49 @@ async function putRemote(data){
   return stamp;
 }
 
+/* ---------- Archivos en la cuenta (Supabase Storage, bucket "catalogos") ---------- */
+function xhr(method,path,o){
+  o=o||{};
+  return new Promise((resolve,reject)=>{
+    token().then(t=>{
+      const x=new XMLHttpRequest();
+      x.open(method,SB_URL+path);
+      x.setRequestHeader('apikey',SB_KEY);
+      x.setRequestHeader('Authorization','Bearer '+t);
+      Object.keys(o.headers||{}).forEach(k=>x.setRequestHeader(k,o.headers[k]));
+      if(o.blob)x.responseType='blob';
+      if(o.onUp&&x.upload)x.upload.onprogress=ev=>{if(ev.lengthComputable)o.onUp(Math.min(99,Math.round(ev.loaded*100/ev.total)));};
+      if(o.onDown)x.onprogress=ev=>{if(ev.lengthComputable&&ev.total)o.onDown(Math.min(99,Math.round(ev.loaded*100/ev.total)));};
+      const net=()=>{const er=new Error('network');er.network=true;reject(er);};
+      x.onerror=net;x.ontimeout=net;x.onabort=net;
+      x.onload=async()=>{
+        if(x.status>=200&&x.status<300){resolve(x.response);return;}
+        let data=null;
+        try{const txt=(typeof Blob!=='undefined'&&x.response instanceof Blob)?await x.response.text():(typeof x.response==='string'?x.response:'');data=txt?JSON.parse(txt):null;}catch(e){}
+        const er=new Error((data&&(data.message||data.error||data.msg))||('http '+x.status));
+        er.status=x.status;er.code=String((data&&(data.error_code||data.code))||'');reject(er);
+      };
+      x.send(o.body||null);
+    },reject);
+  });
+}
+function objPath(id){return '/storage/v1/object/catalogos/'+encodeURIComponent(session.user.id)+'/'+encodeURIComponent(id)+'.pdf';}
+const files={
+  enabled(){return !!session;},
+  upload(id,blob,onPct){
+    const fd=new FormData();fd.append('cacheControl','3600');fd.append('',blob);
+    return xhr('POST',objPath(id),{body:fd,headers:{'x-upsert':'true'},onUp:onPct}).then(()=>{if(onPct)onPct(100);});
+  },
+  download(id,onPct){
+    return xhr('GET','/storage/v1/object/authenticated/catalogos/'+encodeURIComponent(session.user.id)+'/'+encodeURIComponent(id)+'.pdf',{blob:true,onDown:onPct});
+  },
+  remove(id){
+    return xhr('DELETE',objPath(id),{}).catch(e=>{if(e&&e.status===404)return;throw e;});
+  }
+};
+
 /* ---------- Datos: armar, unir ---------- */
-function payload(){const s=pf().snapshot();return {v:1,state:s.state,history:s.history,photo:s.photo};}
+function payload(){const s=pf().snapshot();return {v:2,state:s.state,history:s.history,photo:s.photo,cats:s.cats||[],catsDel:s.catsDel||[]};}
 function union(a,b){const seen=new Set((a||[]).map(x=>x&&x.id));return (a||[]).concat((b||[]).filter(x=>x&&!seen.has(x.id)));}
 function filled(o){const r={};Object.keys(o||{}).forEach(k=>{if(o[k]!==''&&o[k]!=null)r[k]=o[k];});return r;}
 function merge(remote,local){
@@ -2167,7 +2336,9 @@ function merge(remote,local){
   st.clients=union(rs.sample?[]:rs.clients,ls.clients);
   const hist=union(remote.history,local.history);
   hist.sort((a,b)=>String(b.savedAt).localeCompare(String(a.savedAt)));
-  return {v:1,state:st,history:hist,photo:remote.photo||local.photo||''};
+  const del=new Set([].concat(remote.catsDel||[],local.catsDel||[]));
+  const cats=union(remote.cats||[],local.cats||[]).filter(c=>c&&!del.has(c.id));
+  return {v:2,state:st,history:hist,photo:remote.photo||local.photo||'',cats:cats,catsDel:Array.from(del)};
 }
 
 /* ---------- Sincronización ---------- */
@@ -2187,14 +2358,16 @@ async function run(){
     const done=rev=>setSync({uid:uid,rev:rev,dirty:edits!==e0});
     const rdata=remote&&remote.data;
     const hasRemote=!!(rdata&&rdata.state&&Array.isArray(rdata.state.products));
+    /* Datos guardados por una versión anterior (sin lista de catálogos) mientras aquí ya hay catálogos en la nube */
+    const lacksCats=hasRemote&&!Array.isArray(rdata.cats)&&(local.cats||[]).length>0;
     if(!hasRemote){
       /* Cuenta sin datos todavía: sube lo que hay en este dispositivo (primera vez) */
       done(await putRemote(local));
     }else{
       const remoteNewer=!sameUser||!s.rev||Date.parse(remote.updated_at)>Date.parse(s.rev);
       if(!remoteNewer){
-        if(s.dirty)done(await putRemote(local));
-      }else if(!pf().hasData()||(sameUser&&!s.dirty)){
+        if(s.dirty||lacksCats)done(await putRemote(local));
+      }else if(!lacksCats&&(!pf().hasData()||(sameUser&&!s.dirty))){
         pf().apply(rdata);
         setSync({uid:uid,rev:remote.updated_at,dirty:false});
         if(!sameUser||s.rev)pf().toast('Datos de tu cuenta cargados.');
@@ -2216,7 +2389,7 @@ function sync(){
   if(!session)return Promise.resolve();
   if(inflight){queued=true;return inflight;}
   lastRun=Date.now();
-  inflight=run().finally(()=>{inflight=null;if(queued){queued=false;sync();}});
+  inflight=run().then(()=>{try{if(session&&pf().syncFiles)pf().syncFiles();}catch(e){}}).finally(()=>{inflight=null;if(queued){queued=false;sync();}});
   return inflight;
 }
 function schedulePush(){clearTimeout(pushTimer);pushTimer=setTimeout(sync,2500);}
@@ -2314,6 +2487,7 @@ function paintAcct(){
 $('#acctSyncBtn').addEventListener('click',async()=>{
   if(!session)return;
   await sync();
+  try{if(pf().syncFiles)pf().syncFiles(true);}catch(e){}
   if(cloudState==='ok')pf().toast('Todo sincronizado.');
   else if(cloudState==='offline')pf().toast('Sin conexión. Se sincronizará después.');
   else if(cloudState==='error')pf().toast(lastErr||'No se pudo sincronizar.');
@@ -2329,8 +2503,16 @@ $('#acctOut').addEventListener('click',async()=>{
   try{
     clearTimeout(pushTimer);
     await sync();
+    try{if(pf().syncFiles)await pf().syncFiles(true);}catch(e){}
+    clearTimeout(pushTimer);
+    await sync();
     if(getSync().dirty||cloudState!=='ok'){
       pf().toast('Tienes cambios sin sincronizar. Conéctate a internet antes de cerrar sesión.');
+      b.textContent='Cerrar sesión';b.disabled=false;return;
+    }
+    const pend=pf().pendingFiles?pf().pendingFiles():0;
+    if(pend>0){
+      pf().toast('Hay catálogos que aún no terminan de sincronizarse con tu cuenta y se perderían. Espera a que terminen, o elimínalos, antes de cerrar sesión.');
       b.textContent='Cerrar sesión';b.disabled=false;return;
     }
     try{await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+session.access_token}});}catch(e){}
@@ -2345,6 +2527,7 @@ document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'&&session&&Date.now()-lastRun>20000)sync();
 });
 pf().changed=changed;
+pf().files=files;
 session=loadSession();
 if(session){paintAcct();sync();}else{showAuth();}
 })();
