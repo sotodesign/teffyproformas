@@ -1436,11 +1436,18 @@ async function makePdfImage(p){
     const J=window.jspdf.jsPDF,doc=new J({unit:'pt',format:'a4'});
     const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
     const imgH=W*cv.height/cv.width,data=cv.toDataURL('image/jpeg',0.93);
-    const pages=Math.max(1,Math.ceil(imgH/H-0.02));
-    for(let i=0;i<pages;i++){
-      if(i>0)doc.addPage();
+    /* Una sola hoja: si se pasa un poco del alto, se reduce para que entre (hasta 55 %); con muchísimos productos sigue en varias hojas */
+    const k=H/imgH;
+    if(imgH>H*1.005&&k>=0.55){
       doc.setFillColor(255,247,251);doc.rect(0,0,W,H,'F');
-      doc.addImage(data,'JPEG',0,-i*H,W,imgH);
+      doc.addImage(data,'JPEG',(W-W*k)/2,0,W*k,H);
+    }else{
+      const pages=Math.max(1,Math.ceil(imgH/H-0.02));
+      for(let i=0;i<pages;i++){
+        if(i>0)doc.addPage();
+        doc.setFillColor(255,247,251);doc.rect(0,0,W,H,'F');
+        doc.addImage(data,'JPEG',0,-i*H,W,imgH);
+      }
     }
     return doc.output('blob');
   }finally{wrap.remove();}
