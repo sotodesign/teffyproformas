@@ -391,6 +391,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .q-brands .b0{color:#a80f5c}
 .bchip{display:inline-flex;align-items:center;gap:6px;cursor:default}
 .bchip button{border:0;background:transparent;color:var(--accent);font-size:18px;line-height:1;padding:0 2px;cursor:pointer}
+.hbhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brands .hbi{position:relative}
+.brands .hbi>button:first-child{width:100%;height:100%;overflow-wrap:anywhere;padding:6px}
+.brands .hbi .hbx{position:absolute;top:-7px;right:-5px;width:24px;height:24px;min-height:0;padding:0;border-radius:50%;border:0;background:var(--accent);color:#fff;font-family:inherit;font-size:16px;line-height:1;display:grid;place-items:center}
+.hbadd{display:flex;gap:8px;margin-top:10px}.hbadd input{flex:1;min-width:0}
 /* ===== Modo oscuro ===== */
 /* ===== Catálogos en PDF y visor ===== */
 .catrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
@@ -549,7 +554,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
       <div class="sumrow"><span>Total cotizado</span><strong id="sumT">$0</strong></div></section>
     <div class="hero"><h2>Belleza que te hace brillar</h2><p>Crea tus proformas de forma rápida y profesional.</p><button class="btn" data-tab="proforma">Crear proforma</button></div>
     <div class="quick"><button class="q" data-tab="catalogo"><i style="background:#ec407a"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H5zM19 4h-5v14"/></svg></i>Productos</button><button class="q" data-tab="historial"><i style="background:#26b5a0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>Mis proformas</button><button class="q" data-tab="clientes"><i style="background:#8e5bd6"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></i>Clientes</button><button class="q" data-tab="negocio"><i style="background:#f5a623"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></i>Ajustes</button></div>
-    <section class="panel"><h2>Marcas</h2><div class="brands"><button data-brandgo="Ésika">Ésika</button><button data-brandgo="Cyzone">Cyzone</button><button data-brandgo="L'Bel">L'Bel</button><button data-brandgo="Avon">Avon</button><button data-brandgo="Natura">Natura</button></div></section>
+    <section class="panel" id="homeBrands"><div class="hbhead"><h2>Marcas</h2><button type="button" class="btn sm" id="hbEdit">Editar</button></div><div class="brands" id="hbList"></div>
+      <div class="hbadd" id="hbAdd" hidden><input type="text" id="hbNew" placeholder="Agregar marca (Ej. Yanbal)"><button type="button" class="btn sm primary" id="hbAddBtn">Agregar</button></div></section>
     <section class="panel"><h2>¿Listo para generar tu proforma?</h2><p class="hint">Agrega productos, elige al cliente y descarga el PDF en pocos pasos.</p><button class="btn primary" data-tab="proforma">Empezar</button></section>
   </section>
   <section class="tabpane" id="tab-proforma" data-step="1" hidden>
@@ -845,7 +851,7 @@ function blankDraft(){
 function makeSample(){
   const P=(brand,code,name,price)=>({id:uid(),brand,code,name,price});
   const st={sample:true,counter:1,
-    seller:{name:'',business:'',phone:'',doc:'',address:'',payment:'',pay:{accounts:[],cash:false,card:false},notes:'Precios según el catálogo vigente de la campaña. Los productos se entregan al confirmar el pago.'},
+    seller:{name:'',business:'',phone:'',doc:'',address:'',payment:'',pay:{accounts:[],cash:false,card:false},brands:DEF_BRANDS.slice(),notes:'Precios según el catálogo vigente de la campaña. Los productos se entregan al confirmar el pago.'},
     prefs:{validDays:'7',igv:false},
     products:[
       P('Ésika','Pág. 24','Labial mate larga duración',6990),
@@ -1112,13 +1118,38 @@ function addBrand(){
   if(!v.length)return;
   const cur=state.seller.brands||(state.seller.brands=[]);
   v.forEach(n=>{if(!cur.some(c=>c.toLowerCase()===n.toLowerCase()))cur.push(n);});
-  inp.value='';renderBrandChips();profEdit();
+  inp.value='';renderBrandChips();renderHomeBrands();profEdit();
 }
 $('#brandAdd').addEventListener('click',addBrand);
 $('#brandNew').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addBrand();}});
 $('#myBrands').addEventListener('click',e=>{
   const b=e.target.closest('[data-brand-del]');if(!b)return;
-  state.seller.brands.splice(Number(b.dataset.brandDel),1);renderBrandChips();profEdit();
+  state.seller.brands.splice(Number(b.dataset.brandDel),1);renderBrandChips();renderHomeBrands();profEdit();
+});
+
+/* Marcas en Inicio: tocar una marca abre el catálogo; «Editar» permite quitar o agregar (se guarda al instante) */
+let hbEditing=false;
+function renderHomeBrands(){
+  const b=state.seller.brands||[];
+  $('#hbList').innerHTML=b.length?b.map((x,i)=>'<div class="hbi"><button type="button" data-brandgo="'+esc(x)+'">'+esc(x)+'</button>'+(hbEditing?'<button type="button" class="hbx" data-hb-del="'+i+'" aria-label="Quitar '+esc(x)+'">×</button>':'')+'</div>').join(''):'<p class="hint" style="grid-column:1/-1">Aún no tienes marcas. Toca «Editar» para agregar.</p>';
+  $('#hbAdd').hidden=!hbEditing;$('#hbEdit').textContent=hbEditing?'Listo':'Editar';
+}
+function brandsSaved(){
+  if(profBase){const o=JSON.parse(profBase);o.seller.brands=state.seller.brands.slice();profBase=JSON.stringify(o);}
+  renderBrandChips();renderHomeBrands();updateTotals();touch();
+}
+$('#hbEdit').addEventListener('click',()=>{hbEditing=!hbEditing;renderHomeBrands();});
+function hbAdd(){
+  const inp=$('#hbNew'),v=inp.value.split(',').map(x=>x.trim()).filter(Boolean);if(!v.length)return;
+  const cur=state.seller.brands||(state.seller.brands=[]);
+  v.forEach(n=>{if(!cur.some(c=>c.toLowerCase()===n.toLowerCase()))cur.push(n);});
+  inp.value='';brandsSaved();
+}
+$('#hbAddBtn').addEventListener('click',hbAdd);
+$('#hbNew').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();hbAdd();}});
+$('#hbList').addEventListener('click',e=>{
+  const x=e.target.closest('[data-hb-del]');if(!x)return;
+  e.stopPropagation();state.seller.brands.splice(Number(x.dataset.hbDel),1);brandsSaved();
 });
 
 /* ---------- Renderizado ---------- */
@@ -1309,7 +1340,7 @@ function updateTotals(){
   else{wa.hidden=true;wa.removeAttribute('href');}
 }
 function renderAll(){
-  renderBrandList();syncInputs();renderPay();renderBrandChips();renderCats();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
+  renderBrandList();syncInputs();renderPay();renderBrandChips();renderHomeBrands();renderCats();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
   $('#sampleBanner').hidden=!state.sample;
 }
 function onDraft(){updateTotals();touch();}
@@ -2339,7 +2370,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-brandgo]');
   if(b){const br=b.dataset.brandgo;$('.tab[data-tab="catalogo"]').click();
     const f=$$('.chip[data-brand]');const all=f.find(c=>c.dataset.brand==='');if(all)all.click();
-    $$('.chip[data-brand]').forEach(c=>{if(c.dataset.brand===br)c.click();});
+    $$('.chip[data-brand]').forEach(c=>{if(c.dataset.brand.toLowerCase()===br.toLowerCase())c.click();});
     $('#np-brand').value=br;setTimeout(()=>{window.scrollTo(0,0);$('#np-code').focus();},60);return;}
   const a=e.target.closest('[data-act]'),act=a&&a.dataset.act;
   if(act==='new'||act==='open-hist'||act==='dup-hist')go(1);
