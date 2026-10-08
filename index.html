@@ -388,6 +388,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .q-client .qc:first-child .ci{padding:6px}
 .q-client b,.q-client .qc span{font-size:12px}
 .q-client small{white-space:nowrap}.q-client{grid-template-columns:1.05fr 1fr 1.35fr}
+.q-brands .b0{color:#a80f5c}
+.bchip{display:inline-flex;align-items:center;gap:6px;cursor:default}
+.bchip button{border:0;background:transparent;color:var(--accent);font-size:18px;line-height:1;padding:0 2px;cursor:pointer}
 /* ===== Modo oscuro ===== */
 /* ===== Catálogos en PDF y visor ===== */
 .catrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
@@ -709,6 +712,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
       </div>
       <label class="field"><span>Dirección o zona de atención</span><input type="text" data-bind="seller.address"></label>
     </section>
+    <section class="panel" id="brandPanel">
+      <h2>Marcas en tu proforma</h2>
+      <p class="hint">Estas marcas salen bajo el título de tus proformas. Quita las que no vendes o agrega otras.</p>
+      <div class="chips" id="myBrands"></div>
+      <div class="row-end" style="justify-content:stretch"><input type="text" id="brandNew" placeholder="Ej. Natura, Yanbal, Oriflame" style="flex:1"><button type="button" class="btn sm primary" id="brandAdd">Agregar</button></div>
+    </section>
     <section class="panel" id="payPanel">
       <h2>Opciones de pago</h2>
       <p class="hint">Elige tus bancos y completa los datos. Saldrán en cada proforma, en el PDF y en el mensaje de WhatsApp.</p>
@@ -862,6 +871,7 @@ function normalize(raw){
   s.sample=!!raw.sample;
   s.counter=Math.max(1,parseInt(raw.counter,10)||1);
   s.seller=Object.assign({name:'',business:'',phone:'',doc:'',address:'',payment:'',notes:''},raw.seller||{});
+  s.seller.brands=Array.isArray(s.seller.brands)?s.seller.brands.filter(b=>typeof b==='string'&&b.trim()):DEF_BRANDS.slice();
   s.seller.pay=normPay(s.seller.pay);
   s.prefs=Object.assign({validDays:'7',igv:false},raw.prefs||{});
   s.products=Array.isArray(raw.products)?raw.products:[];
@@ -1091,6 +1101,26 @@ $$('[data-pay-toggle]').forEach(b=>b.addEventListener('click',()=>{
   b.setAttribute('aria-pressed',String(state.seller.pay[k]));profEdit();
 }));
 
+/* ---------- Marcas de la proforma ---------- */
+function renderBrandChips(){
+  const b=state.seller.brands||[];
+  $('#myBrands').innerHTML=b.length?b.map((x,i)=>'<span class="chip bchip">'+esc(x)+' <button type="button" data-brand-del="'+i+'" aria-label="Quitar '+esc(x)+'">×</button></span>').join(''):'<span class="hint">Sin marcas: no se mostrará la fila.</span>';
+}
+function addBrand(){
+  const inp=$('#brandNew');
+  const v=inp.value.split(',').map(x=>x.trim()).filter(Boolean);
+  if(!v.length)return;
+  const cur=state.seller.brands||(state.seller.brands=[]);
+  v.forEach(n=>{if(!cur.some(c=>c.toLowerCase()===n.toLowerCase()))cur.push(n);});
+  inp.value='';renderBrandChips();profEdit();
+}
+$('#brandAdd').addEventListener('click',addBrand);
+$('#brandNew').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addBrand();}});
+$('#myBrands').addEventListener('click',e=>{
+  const b=e.target.closest('[data-brand-del]');if(!b)return;
+  state.seller.brands.splice(Number(b.dataset.brandDel),1);renderBrandChips();profEdit();
+});
+
 /* ---------- Renderizado ---------- */
 function renderBrandList(){
   const set=new Set(BRANDS);
@@ -1180,6 +1210,7 @@ function renderHistory(){
     '<div class="empty-note">Aún no guardas proformas. Cuando guardes una, aparecerá aquí para abrirla o duplicarla.</div>';
 }
 
+const DEF_BRANDS=['ésika','cyzone',"L'BEL",'AVON','natura'];
 function brandKey(b){
   const t=String(b||'').toLowerCase();
   if(/sika|sika/.test(t))return 'b1';if(/cyzone/.test(t))return 'b2';if(/bel/.test(t))return 'b3';if(/avon/.test(t))return 'b4';if(/natura/.test(t))return 'b5';return 'b0';
@@ -1209,7 +1240,7 @@ function paperHTML(p,c){
   const num_=numLabel(p.number||state.counter);
   const until=addDays(p.date,Math.max(0,parseInt(p.validDays,10)||0));
   const ph=(v,f)=>v?esc(v):'<span class="ph">'+f+'</span>';
-  const BR='<span class="b1">ésika</span><span class="b2">cyzone</span><span class="b3">L\'BEL</span><span class="b4">AVON</span><span class="b5">natura</span>';
+  const BR=(Array.isArray(s.brands)?s.brands:DEF_BRANDS).map(b=>'<span class="'+brandKey(b)+'">'+esc(b)+'</span>').join('');
   const rows=p.items.length?p.items.map((it,i)=>{
     const d=clamp(num(it.disc),0,100);
     const nm=String(it.name||'').trim();
@@ -1278,7 +1309,7 @@ function updateTotals(){
   else{wa.hidden=true;wa.removeAttribute('href');}
 }
 function renderAll(){
-  renderBrandList();syncInputs();renderPay();renderCats();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
+  renderBrandList();syncInputs();renderPay();renderBrandChips();renderCats();renderItems();renderCatResults();renderCatalog();renderClients();renderHistory();updateTotals();
   $('#sampleBanner').hidden=!state.sample;
 }
 function onDraft(){updateTotals();touch();}
