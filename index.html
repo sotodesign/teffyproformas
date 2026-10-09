@@ -468,23 +468,39 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .p-acc{margin-top:6px;display:flex;flex-direction:column;gap:1px;font-size:13px}
 .p-acc b{font-size:13.5px}
 /* ===== Cuenta: entrar / crear cuenta y panel de sesión ===== */
-#auth{position:fixed;inset:0;z-index:120;overflow-y:auto;background:radial-gradient(120% 70% at 50% 0%,#ffc4de 0%,rgba(255,196,222,0) 60%),linear-gradient(165deg,#f06aa8,#d81b78 52%,#8e0f52);display:flex;flex-direction:column;align-items:center;gap:26px;padding:28px 20px}
+#auth{position:fixed;inset:0;z-index:120;overflow-y:auto;background:radial-gradient(90% 60% at 50% 0%,#2a2113 0%,rgba(42,33,19,0) 70%),linear-gradient(180deg,#100f0d,#0c0d12);color:#f3efe6;display:flex;flex-direction:column;align-items:center;gap:14px;padding:28px 20px;isolation:isolate}
 #auth[hidden]{display:none}
-#auth>:first-child{margin-top:auto}
-#auth>:last-child{margin-bottom:auto}
-#auth .coin{width:112px;height:112px;flex:none;filter:drop-shadow(0 14px 18px rgba(80,5,45,.38));animation:coinfloat 4.5s ease-in-out infinite}
+#auth .coin{margin-top:auto;width:96px;height:96px;flex:none;filter:drop-shadow(0 10px 22px rgba(230,184,92,.28));animation:coinfloat 4.5s ease-in-out infinite;position:relative;z-index:1}
 @keyframes coinfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media (prefers-reduced-motion:reduce){#auth .coin{animation:none}}
-#auth .box{width:100%;max-width:380px;background:var(--surface);color:var(--fg);border-radius:28px;padding:22px 18px 20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 18px 50px rgba(80,5,45,.4)}
-#auth .seg2{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface-2);border-radius:999px;padding:4px}
-#auth .seg2 button{border:0;background:transparent;border-radius:999px;min-height:40px;font-weight:700;cursor:pointer;color:var(--muted);font-size:14px}
-#auth .seg2 button[aria-pressed="true"]{background:var(--grad);color:#fff}
-#auth .btn.primary{min-height:48px;width:100%}
-#authMsg{font-size:13px;line-height:1.35;min-height:18px;color:var(--danger,#b3261e)}
-#authMsg.ok{color:#1b7a43}
-#auth .pw{position:relative}
-#auth .pw input{width:100%;padding-right:78px}
-#auth .pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer;padding:8px}
+@keyframes twinkle{0%,100%{opacity:var(--o,.4)}50%{opacity:.08}}
+@media (prefers-reduced-motion:reduce){#auth .coin,#auth .astars b{animation:none!important}}
+#auth .abrand{font-size:11px;letter-spacing:.2em;color:#a39d90;font-weight:600;position:relative;z-index:1;margin-bottom:8px}
+.astars{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.astars b{position:absolute;color:#bdb8ad;font-weight:400;animation:twinkle 5s ease-in-out infinite}
+#auth .box{margin-bottom:auto;position:relative;z-index:1;width:100%;max-width:400px;background:rgba(21,22,26,.92);border:1px solid #2a2b31;color:#f3efe6;border-radius:22px;padding:30px 26px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+#auth h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:32px;text-align:center;letter-spacing:-.02em;margin:0;color:#fff}
+#auth .asub{text-align:center;color:#b3ada0;font-size:14px;margin:0 0 6px;line-height:1.4}
+#auth .afield{display:flex;flex-direction:column;gap:7px}
+#auth .afield>span{font-size:11px;letter-spacing:.12em;color:#a39d90;font-weight:600}
+#auth .aw{position:relative;display:flex;align-items:center;background:#1f2330;border:1px solid #3a3f4f;border-radius:14px;min-height:48px}
+#auth .aw:focus-within{border-color:#e6b85c;box-shadow:0 0 0 3px rgba(230,184,92,.18)}
+#auth .aw>svg{width:18px;height:18px;margin-left:14px;flex:none;fill:none;stroke:#9a97a0;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#auth .aw input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#f3efe6;font-size:15px;padding:12px 12px;min-height:46px;box-shadow:none}
+#auth .aw input::placeholder{color:#7d7a85}
+#auth .aw input:-webkit-autofill{-webkit-text-fill-color:#f3efe6;box-shadow:0 0 0 40px #1f2330 inset}
+#authEye{border:0;background:transparent;cursor:pointer;padding:0 14px;height:46px;display:grid;place-items:center}
+#authEye svg{width:20px;height:20px;fill:none;stroke:#9a97a0;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#authEye .e1{display:none}#authEye.on .e1{display:block}#authEye.on .e2{display:none}
+#authMsg{font-size:13px;line-height:1.35;min-height:0;color:#ff8a80}
+#authMsg:not(:empty){background:#2a1a1c;border:1px solid #4a2428;border-radius:12px;padding:11px 14px}
+#authMsg.ok{color:#8fe0a8;background:#14261b;border-color:#24452f}
+#auth .agold{border:0;border-radius:14px;min-height:48px;background:#e6b85c;color:#1b1608;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 22px rgba(230,184,92,.28);font-family:inherit}
+#auth .agold:hover{background:#efc46f}#auth .agold:disabled{opacity:.6;cursor:wait}
+#auth .aor{display:flex;align-items:center;gap:12px;color:#8d897f;font-size:13px}
+#auth .aor i{flex:1;height:1px;background:#2f3138}
+#auth .aswitch{text-align:center;margin:0;color:#b3ada0;font-size:14px}
+#auth .aswitch button{border:0;background:transparent;color:#e6b85c;font-weight:600;font-size:14px;cursor:pointer;padding:4px;font-family:inherit}
+@media (max-width:480px){#auth{padding:22px 14px}#auth .box{padding:26px 18px 20px}#auth h1{font-size:28px}}
 .acct{display:flex;flex-direction:column;gap:6px}
 .acct .mail{font-weight:700;word-break:break-all}
 .acct .sync{font-size:13px;color:var(--muted)}
@@ -513,16 +529,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
     </g>
     <path d="M17 36C22 17 38 9 56 10" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3.5" stroke-linecap="round"/>
   </svg>
+  <div class="abrand">PROFORMAS · VENTAS</div>
   <form class="box" id="authForm" novalidate>
-    <div class="seg2" role="group" aria-label="Entrar o crear cuenta">
-      <button type="button" id="tabIn" aria-pressed="true">Entrar</button>
-      <button type="button" id="tabUp" aria-pressed="false">Crear cuenta</button>
-    </div>
-    <label class="field"><span>Correo</span><input type="email" id="authEmail" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="tu@correo.com" required></label>
-    <label class="field"><span>Contraseña</span><div class="pw"><input type="password" id="authPass" autocomplete="current-password" minlength="6" placeholder="Mínimo 6 caracteres" required><button type="button" id="authEye">Mostrar</button></div></label>
+    <h1 id="authTitle">Iniciar sesión</h1>
+    <p class="asub" id="authSub">Accede a tu cuenta para crear y sincronizar tus proformas</p>
+    <label class="afield"><span>CORREO ELECTRÓNICO</span><div class="aw"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg><input type="email" id="authEmail" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="tu@correo.com" required></div></label>
+    <label class="afield"><span>CONTRASEÑA</span><div class="aw"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input type="password" id="authPass" autocomplete="current-password" minlength="6" placeholder="Mínimo 6 caracteres" required><button type="button" id="authEye" aria-label="Mostrar contraseña"><svg class="e1" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="e2" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.2A9.7 9.7 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.5 7.6C3.9 9.3 2 12 2 12s3.6 6 10 6c1.5 0 2.8-.3 4-.8"/></svg></button></div></label>
     <div id="authMsg" role="alert"></div>
-    <button class="btn primary" id="authGo" type="submit">Entrar</button>
+    <button class="agold" id="authGo" type="submit">Entrar</button>
+    <div class="aor"><i></i><span>o</span><i></i></div>
+    <p class="aswitch"><span id="authAsk">¿No tienes cuenta?</span> <button type="button" id="authSwitch">Regístrate</button></p>
   </form>
+  <div class="astars" id="authStars" aria-hidden="true"></div>
 </div>
 <div class="app">
   <header class="top">
@@ -2607,14 +2625,19 @@ function changed(){
 }
 
 /* ---------- Pantalla de entrar / crear cuenta ---------- */
+(function(){const c=document.getElementById('authStars');if(!c)return;let h='',x=7;const r=()=>{x=(x*9301+49297)%233280;return x/233280;};
+  for(let i=0;i<46;i++){const sz=6+Math.round(r()*10),o=(.25+r()*.5).toFixed(2);h+='<b style="left:'+(r()*100).toFixed(1)+'%;top:'+(r()*100).toFixed(1)+'%;font-size:'+sz+'px;--o:'+o+';animation-delay:'+(r()*5).toFixed(1)+'s">★</b>';}
+  c.innerHTML=h;})();
 function setMsg(t,ok){const m=$('#authMsg');m.textContent=t||'';m.classList.toggle('ok',!!ok);}
 function showAuth(msg){$('#auth').hidden=false;document.body.style.overflow='hidden';setMsg(msg||'');}
 function hideAuth(){$('#auth').hidden=true;document.body.style.overflow='';}
 function setMode(m){
   mode=m;
-  $('#tabIn').setAttribute('aria-pressed',String(m==='in'));
-  $('#tabUp').setAttribute('aria-pressed',String(m==='up'));
-  $('#authGo').textContent=m==='in'?'Entrar':'Crear cuenta';
+  $('#authGo').textContent=m==='in'?'Iniciar sesión':'Crear cuenta';
+  $('#authTitle').textContent=m==='in'?'Iniciar sesión':'Crear cuenta';
+  $('#authSub').textContent=m==='in'?'Accede a tu cuenta para crear y sincronizar tus proformas':'Crea tu cuenta para guardar tus datos y verlos en todos tus dispositivos';
+  $('#authAsk').textContent=m==='in'?'¿No tienes cuenta?':'¿Ya tienes cuenta?';
+  $('#authSwitch').textContent=m==='in'?'Regístrate':'Inicia sesión';
   $('#authPass').autocomplete=m==='in'?'current-password':'new-password';
   setMsg('');
 }
@@ -2655,11 +2678,10 @@ async function onSignedIn(r){
   $('#authPass').value='';
   hideAuth();paintAcct();sync();
 }
-$('#tabIn').addEventListener('click',()=>setMode('in'));
-$('#tabUp').addEventListener('click',()=>setMode('up'));
+$('#authSwitch').addEventListener('click',()=>setMode(mode==='in'?'up':'in'));
 $('#authEye').addEventListener('click',()=>{
   const p=$('#authPass'),show=p.type==='password';
-  p.type=show?'text':'password';$('#authEye').textContent=show?'Ocultar':'Mostrar';
+  p.type=show?'text':'password';$('#authEye').classList.toggle('on',show);$('#authEye').setAttribute('aria-label',show?'Ocultar contraseña':'Mostrar contraseña');
 });
 $('#authForm').addEventListener('submit',async ev=>{
   ev.preventDefault();
