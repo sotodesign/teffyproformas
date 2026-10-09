@@ -504,7 +504,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 .acct{display:flex;flex-direction:column;gap:6px}
 .acct .mail{font-weight:700;word-break:break-all}
 .acct .sync{font-size:13px;color:var(--muted)}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#14101a;--surface:#1f1a29;--surface-2:#282234;--field:#15111c;--fg:#f4eff9;--muted:#ada5bd;--line:#352d45;--accent:#ff7ab8;--accent-soft:#3d1732;--shadow:0 2px 12px rgba(0,0,0,.4)}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e0d0c;--surface:#17181d;--surface-2:#1f2330;--field:#12131a;--fg:#f3efe6;--muted:#a9a498;--line:#2a2b31;--accent:#ff7ab8;--accent-soft:#3d1732;--shadow:0 2px 12px rgba(0,0,0,.4)}
+.astars.app-x{display:none}
+#appStars{display:none}
+:root[data-theme="dark"] #appStars{display:block}
+:root[data-theme="dark"] body{background:radial-gradient(90% 45% at 50% 0%,#2a2113 0%,rgba(42,33,19,0) 70%),linear-gradient(180deg,#100f0d,#0c0d12) fixed}
 :root[data-theme="dark"] .tabs{background:var(--surface);border-color:var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.35)}
 :root[data-theme="dark"] :is(.steps span,.brands button){background:var(--surface);border-color:var(--line)}
 :root[data-theme="dark"] .result{background:var(--surface)}
@@ -512,6 +516,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;box
 </head>
 <body>
 <div id="splash"><h1>Tu belleza también genera grandes historias</h1><p>Crea tus proformas de forma rápida y profesional con Ésika, Cyzone, L'Bel, Avon y más.</p><input id="splashName" type="text" placeholder="¿Cómo te llamas?" autocomplete="given-name"><button class="btn" id="goSplash">Comenzar</button></div>
+<div class="astars" id="appStars" aria-hidden="true"></div>
 <div id="auth" hidden>
   <svg class="coin" viewBox="0 0 96 96" role="img" aria-label="Moneda de pesos chilenos" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -2625,9 +2630,9 @@ function changed(){
 }
 
 /* ---------- Pantalla de entrar / crear cuenta ---------- */
-(function(){const c=document.getElementById('authStars');if(!c)return;let h='',x=7;const r=()=>{x=(x*9301+49297)%233280;return x/233280;};
+(function(){const cs=['authStars','appStars'].map(i=>document.getElementById(i)).filter(Boolean);if(!cs.length)return;let h='',x=7;const r=()=>{x=(x*9301+49297)%233280;return x/233280;};
   for(let i=0;i<46;i++){const sz=6+Math.round(r()*10),o=(.25+r()*.5).toFixed(2);h+='<b style="left:'+(r()*100).toFixed(1)+'%;top:'+(r()*100).toFixed(1)+'%;font-size:'+sz+'px;--o:'+o+';animation-delay:'+(r()*5).toFixed(1)+'s">★</b>';}
-  c.innerHTML=h;})();
+  cs.forEach(c=>{c.innerHTML=h;});})();
 function setMsg(t,ok){const m=$('#authMsg');m.textContent=t||'';m.classList.toggle('ok',!!ok);}
 function showAuth(msg){$('#auth').hidden=false;document.body.style.overflow='hidden';setMsg(msg||'');}
 function hideAuth(){$('#auth').hidden=true;document.body.style.overflow='';}
