@@ -608,6 +608,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold-2);box-shadow:0 
 .astars b{animation:twinkle 5s ease-in-out infinite}
 .astars::after{content:"";position:absolute;top:12%;left:-10%;width:140px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,236,170,.9));transform:rotate(24deg);opacity:0;animation:shoot 9s 3s ease-in infinite}
 @keyframes shoot{0%{opacity:0;transform:translate(0,0) rotate(24deg)}4%{opacity:1}14%{opacity:0;transform:translate(70vw,32vw) rotate(24deg)}100%{opacity:0}}
+
+/* ===== Paleta unificada: rosa, ciruela y dorado (se quitan el turquesa, el morado y el naranja sueltos) ===== */
+.quick .q:nth-child(1) i{background:linear-gradient(135deg,#f0388f,#a80f5c)!important}
+.quick .q:nth-child(2) i{background:linear-gradient(135deg,#8a2f72,#4a1347)!important}
+.quick .q:nth-child(3) i{background:linear-gradient(135deg,#f3cd7a,#c8922f)!important}
+.quick .q:nth-child(3) svg{stroke:#4a2c00}
+.quick .q:nth-child(4) i{background:linear-gradient(135deg,#d97a8c,#8e3350)!important}
+.quick .q svg{filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
+.hero{background:radial-gradient(60% 90% at 12% 10%,#f0388f 0%,transparent 60%),radial-gradient(50% 75% at 96% 92%,#d9a441 0%,transparent 60%),radial-gradient(70% 90% at 70% 0%,#8a1a5a 0%,transparent 70%),linear-gradient(135deg,#a80f5c,#3d0b2c);background-size:140% 140%}
+.sumrow strong,.brands button,.panel h2 .num{color:var(--accent)}
+.brands button:hover{border-color:var(--gold-2)}
+.avatar,.pav{background:linear-gradient(135deg,#f0388f,#a80f5c);color:#fff}
+.status[data-k="saved"] .dot{background:#4fb286}
+.fab{background:linear-gradient(135deg,#f3cd7a,#d9a441);color:#3b2400;box-shadow:0 10px 26px rgba(217,164,65,.45)}
+.tab[aria-selected="true"]{color:var(--accent)}
+:root[data-theme="dark"] .quick .q{color:var(--fg)}
 /* Entrada a la app tras iniciar sesión */
 .app.rise>:not(.tabs):not(.fab):not(.actions){animation:appIn .9s var(--ease) both}
 .app.rise .tabs{animation:tabsIn .9s .15s var(--ease) both}
